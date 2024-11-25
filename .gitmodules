@@ -1,0 +1,9 @@
+[submodule "tree"]
+	path = tree
+	url = https://github.com/GBobkov/tree
+[submodule "build/my_stack"]
+	path = build/my_stack
+	url = https://github.com/GBobkov/my_stack
+[submodule "my_stack"]
+	path = my_stack
+	url = https://github.com/GBobkov/my_stack
