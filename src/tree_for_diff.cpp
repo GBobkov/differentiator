@@ -12,13 +12,12 @@ static const char* database_file_name = "database.txt";
 
 
 // Создать узел с массивом data.
-NODE* Create_Node(DATA_TYPE_CNST var_type, int data,  NODE* parent,  NODE* left, NODE* right)
+NODE* Create_Node(DATA_TYPE_CNST var_type, int data,  NODE* left, NODE* right)
 {
 
     NODE* node = (NODE *) calloc(1, sizeof(NODE));
     node->type = var_type;
     node->data = data;
-    node->parent = parent;
     node->left = left;
     node->right = right;
 
@@ -36,8 +35,8 @@ void Destroy_Node(NODE* node)
 // рекурсивно удаляет дерево
 void Destroy_Tree(NODE* head)
 {
-    assert(head != NULL);
-
+    if (!head) return;
+    
     if (head->right) Destroy_Tree(head->right);
     if (head->left) Destroy_Tree(head->left);
     Destroy_Node(head);
@@ -88,7 +87,7 @@ static void Write_Connections_2Dump(FILE* dump_file, NODE* node)
 
 
 // Сформировать dot-file и png.
-void Node_Dump(const char* dump_fname, NODE* node)
+void Tree_Dump(const char* dump_fname, NODE* node)
 {
 
     FILE* dump_file = fopen(dump_fname, "w");
@@ -118,7 +117,15 @@ void Node_Dump(const char* dump_fname, NODE* node)
     #undef FREE_COLOR
     #undef BUSY_COLOR
 
-    system("dot dump.dot -Tpng -o dump.png");
+    char create_png_cmd[BUFSIZE] = {};
+    char png_fname[BUFSIZE] = {};
+    strcpy(png_fname, dump_fname);
+    char *dot_ptr = strchr(png_fname, '.');
+    strcpy(dot_ptr, ".png");
+
+    sprintf(create_png_cmd, "dot %s -Tpng -o %s", dump_fname, png_fname); 
+    //printf("cmd=%s\n", create_png_cmd);
+    system(create_png_cmd);
 }
 
 
@@ -229,26 +236,26 @@ static void Read_New_Node(FILE* file, NODE* node)
     char bracket = '\0';
     bracket = fgetc(file); // Достаём скобку.
     fgetc(file);    // Достаём \n.
-
+    
     if (bracket == '{')
     {
-        NODE* right_son = Create_Node(NONE_DATA, 0, node, NULL, NULL);
+        NODE* right_son = Create_Node(NONE_DATA, 0, NULL, NULL);
         node->right = right_son;
         Read_New_Node(file, right_son);
     }
-
+    
     if (bracket == '{')
     {
         bracket = fgetc(file);  // Достаём скобку.
         fgetc(file); // Достаём \n.
     }
-
+    
     if (bracket == '{')
     {
-        NODE* left_son = Create_Node(NONE_DATA, 0, node, NULL, NULL);
+        NODE* left_son = Create_Node(NONE_DATA, 0, NULL, NULL);
         node->left = left_son;
         Read_New_Node(file, left_son);
-        fgetc(file);    // Достаём скобку.
+        fgetc(file);    // Достаём скобку ('}').
         fgetc(file);    // Достаём \n.
     }
 

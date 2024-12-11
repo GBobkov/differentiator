@@ -18,7 +18,6 @@ struct NODE
 {
     DATA_TYPE_CNST type;
     int data;
-    NODE* parent;
     NODE* left;
     NODE* right;
 };
@@ -36,10 +35,10 @@ int Write_Data(NODE* node);
 
 
 // Сформировать dot-file и png.
-void Node_Dump(const char* dump_fname, NODE* node);
+void Tree_Dump(const char* dump_fname, NODE* node);
 
 // Создать узел с массивом data.
-NODE* Create_Node(DATA_TYPE_CNST var_type, int data,  NODE* parent,  NODE* left, NODE* right);
+NODE* Create_Node(DATA_TYPE_CNST var_type, int data,  NODE* left, NODE* right);
 
 // рекурсивно удаляет дерево
 void Destroy_Tree(NODE* head);
