@@ -51,11 +51,12 @@ static void Nodes_Init_2Dump(FILE* dump_file, NODE* node)
 
     #define TITLE_COLOR "\"lightblue\""
     if (node->type == OP_DATA || node->type == VAR_DATA)
-        fprintf (dump_file, "NODE_0x%p[label = \"%c\", fillcolor =" TITLE_COLOR "];\n", node, node->data, node->type);
+        fprintf (dump_file, "NODE_0x%p[label = \"%c\",  fillcolor = " TITLE_COLOR "];\n", node, node->data, node->type);
     else if (node->type == NUM_DATA)
-        fprintf (dump_file, "NODE_0x%p[label = \"%d\", fillcolor =" TITLE_COLOR "];\n", node, node->data);
+        fprintf (dump_file, "NODE_0x%p[label = \"%d\",  fillcolor = " TITLE_COLOR "];\n", node, node->data);
     else
     {
+        printf("Unpredictable node->type=%d\n", node->type);
         printf("Error at %s:%d(%s)", __FILE__, __LINE__, __FUNCTION__);
         abort();
     }
@@ -175,7 +176,9 @@ static bool Isop(const char *str)
     case '*':
     case '/':
     case '^':
-    case '&': // знак композиции
+    case 'l':
+    case 'c':
+    case 's': 
         return true;
     
     default:
