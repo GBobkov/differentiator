@@ -144,6 +144,49 @@ static void Read_New_Node(FILE* file, NODE* node)
 }
 
 
+ // проверяет наличие строки comparing в начале строки string.
+static bool isbegin(const char* string, const char* comparing)
+{
+    int pointer = 0;
+    while (comparing[pointer] != '\0')
+    {
+        if (string[pointer] != comparing[pointer])
+            return false;
+        pointer++;
+    }
+    return true;
+}
+
+
+struct FUNC_INFO
+{
+    int func; // код функции
+    int len;
+};
+
+// создаёт структуру
+static FUNC_INFO* Create_Func_Info(int func, int len)
+{
+    FUNC_INFO* info = (FUNC_INFO*) calloc(1, sizeof(FUNC_INFO));
+    info->func = func;
+    info->len = len;
+    return info;
+}
+
+// проверяет является ли данная строка функцией. Возвращает струку информации о операции.
+static FUNC_INFO* get_func_info(const char* operation)
+{
+    #define CODEGEN(oper) if (isbegin(operation, #oper)) return Create_Func_Info(oper##_OP, strlen(#oper))
+    CODEGEN(LN);
+    CODEGEN(COS);
+    CODEGEN(SIN);
+    CODEGEN(TAN);
+    CODEGEN(COT);
+    return Create_Func_Info(0, 0);
+    #undef CODEGEN
+}
+
+
 
 
 static char user_line_expression[100] = "3*x^(x^2+2)/l(s(x)+5)-1";
@@ -213,15 +256,18 @@ static NODE* Get_Kernel()
 // обработать функцию.
 static NODE* Get_Func()
 {
-
+    //FUNC_INFO* oper_info = get_func_info(&user_line_expression[user_line_pointer]); // TODO: Сделать ввод синуса и косинуса полным
+    
     if (user_line_expression[user_line_pointer] == 'c' || user_line_expression[user_line_pointer] == 's' || user_line_expression[user_line_pointer] == 'l')
     {
         char sign = user_line_expression[user_line_pointer];
-        user_line_pointer++;
+        user_line_pointer += 1;
+        
         return Create_Node(OP_DATA, sign, Create_Node(NUM_DATA, 0, NULL, NULL), Get_Func());
     }
-    else return Get_Kernel();
-   
+
+    return Get_Kernel();
+
 }
 
 // обработать возведение в степень.
@@ -232,7 +278,7 @@ static NODE* Get_Degree()
     NODE* left_tree = Get_Func();
     if (user_line_expression[user_line_pointer] == '^')
     {
-        char sign = user_line_expression[user_line_pointer];
+        int sign = user_line_expression[user_line_pointer];
         user_line_pointer++;
         op_tree = Create_Node(OP_DATA, sign, left_tree, Get_Degree());
     }
@@ -265,6 +311,7 @@ NODE* Get_Sumsub()
     
     NODE* op_tree = NULL;
     NODE* left_tree = Get_Muldiv();
+    
     if (user_line_expression[user_line_pointer] == '+' || user_line_expression[user_line_pointer] == '-')
     {
         char sign = user_line_expression[user_line_pointer];
@@ -279,6 +326,7 @@ NODE* Get_Sumsub()
 // обработать дерево 
 static NODE* Get_Expression_Tree(void)
 {
+    
     NODE* tree = Get_Sumsub();
     if (user_line_expression[user_line_pointer] != '\0')
         SyntaxErr(user_line_pointer, "user_line_expression[user_line_pointer] != '\\0'");
@@ -325,8 +373,8 @@ void Handle_Read_Request(NODE* head)
     {
         printf("Enter expression:");
         scanf("%s", user_line_expression);
+        
         NODE* global_tree = Get_Expression_Tree();
-
         head->type = global_tree->type;
         head->data = global_tree->data;
         head->left = global_tree->left;

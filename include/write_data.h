@@ -12,4 +12,12 @@ void Close_LaTEX_File();
 // запись итоговой производной в латех
 void Write_Data2LaTEX(NODE* head);
 
+
+// ошибки
+enum WRITE_DATA_ERRORS
+{
+    NO_ERROR=0,
+    FILE_NOT_OPEN=1
+};
+
 #endif

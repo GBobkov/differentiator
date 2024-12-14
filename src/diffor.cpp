@@ -54,7 +54,7 @@ static NODE* New_Step_Drvt(NODE* node)
 
             NODE* left = node->left;
             NODE* right = node->right;
-            node->left = Create_Node(OP_DATA, '-', Create_Node(OP_DATA, '*', New_Step_Drvt(left), Copy_Node(right)), Create_Node(OP_DATA, '*', left, Copy_Node(right)));
+            node->left = Create_Node(OP_DATA, '-', Create_Node(OP_DATA, '*', New_Step_Drvt(left), Copy_Node(right)), Create_Node(OP_DATA, '*', Copy_Node(left), New_Step_Drvt(right)));
             node->right = Create_Node(OP_DATA, '^', Copy_Node(right), Create_Node(NUM_DATA, 2, NULL, NULL));
             
             return Copy_Node(node);
