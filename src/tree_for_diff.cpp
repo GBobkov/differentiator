@@ -24,6 +24,12 @@ NODE* Create_Node(DATA_TYPE_CNST var_type, int data,  NODE* left, NODE* right)
     return node;
 }
 
+// копирует узел с поддеревьями
+NODE* Copy_Node(NODE* node)
+{   
+    if (!node) return NULL;
+    return Create_Node(node->type, node->data, Copy_Node(node->left), Copy_Node(node->right));
+}
 
 // удалить конкретный узел
 void Destroy_Node(NODE* node)
@@ -40,93 +46,6 @@ void Destroy_Tree(NODE* head)
     if (head->right) Destroy_Tree(head->right);
     if (head->left) Destroy_Tree(head->left);
     Destroy_Node(head);
-}
-
-
-// инициализация узлов в dot-file
-static void Nodes_Init_2Dump(FILE* dump_file, NODE* node)
-{
-    assert(dump_file != NULL);
-    assert(node != NULL);
-
-    #define TITLE_COLOR "\"lightblue\""
-    if (node->type == OP_DATA || node->type == VAR_DATA)
-        fprintf (dump_file, "NODE_0x%p[label = \"%c\",  fillcolor = " TITLE_COLOR "];\n", node, node->data, node->type);
-    else if (node->type == NUM_DATA)
-        fprintf (dump_file, "NODE_0x%p[label = \"%d\",  fillcolor = " TITLE_COLOR "];\n", node, node->data);
-    else
-    {
-        printf("Unpredictable node->type=%d\n", node->type);
-        printf("Error at %s:%d(%s)", __FILE__, __LINE__, __FUNCTION__);
-        abort();
-    }
-    
-    if (node->left) Nodes_Init_2Dump(dump_file, node->left);
-    if (node->right) Nodes_Init_2Dump(dump_file, node->right);
-    #undef TITLE_COLOR
-}
-
-
-// соеденить стрелками элементы дерева
-static void Write_Connections_2Dump(FILE* dump_file, NODE* node)
-{
-    assert(dump_file != NULL);
-    assert(node != NULL);
-
-    if (node->left)
-    {
-        fprintf(dump_file, "NODE_0x%p->NODE_0x%p [weight = 0, color = deeppink]\n", node, node->left);
-        Write_Connections_2Dump(dump_file, node->left);
-    }
-    if (node->right)
-    {
-        fprintf(dump_file, "NODE_0x%p->NODE_0x%p [weight = 0, color = deeppink]\n", node, node->right);
-        Write_Connections_2Dump(dump_file, node->right);
-    }
-}
-
-
-
-// Сформировать dot-file и png.
-void Tree_Dump(const char* dump_fname, NODE* node)
-{
-
-    FILE* dump_file = fopen(dump_fname, "w");
-
-    assert(dump_file != NULL);
-    assert(node != NULL);
-
-    #define FREE_COLOR  "\"lightgreen\""
-    #define BUSY_COLOR  "\"coral\""
-
-
-    fprintf (dump_file, "digraph G\n");
-    fprintf (dump_file, "{\n");
-    fprintf (dump_file, "splines=line;\n");
-    fprintf (dump_file, "nodesep=2  ;\n"); // расстояние между ячейками
-    fprintf (dump_file, "node[shape=\"oval\", style=\"rounded, filled\"];\n\n");
-
-    Nodes_Init_2Dump(dump_file, node);
-    fprintf (dump_file, "\n");
-
-    Write_Connections_2Dump(dump_file, node);
-    fprintf (dump_file, "\n");
-
-    fprintf (dump_file, "}\n");
-
-    fclose(dump_file);
-    #undef FREE_COLOR
-    #undef BUSY_COLOR
-
-    char create_png_cmd[BUFSIZE] = {};
-    char png_fname[BUFSIZE] = {};
-    strcpy(png_fname, dump_fname);
-    char *dot_ptr = strchr(png_fname, '.');
-    strcpy(dot_ptr, ".png");
-
-    sprintf(create_png_cmd, "dot %s -Tpng -o %s", dump_fname, png_fname); 
-    //printf("cmd=%s\n", create_png_cmd);
-    system(create_png_cmd);
 }
 
 
@@ -265,8 +184,157 @@ static void Read_New_Node(FILE* file, NODE* node)
 }
 
 
+
+
+static char user_line_expression[100] = "x^sx";
+static int user_line_pointer = 0;
+
+
+static void SyntaxErr(int line, const char* message)
+{
+    printf("Unpredictable symbol at position %d\n", line);
+    printf("symbol=%c\n", user_line_expression[user_line_pointer]);
+    printf("message:%s\n", message);
+    abort();
+}
+
+// Обработать сумму.
+NODE* Get_Sumsub();
+
+// Обработать число.
+static NODE* Get_Number()
+{
+    printf("(%s)\tenter\tptr=%d.symbol=%c\n", __FUNCTION__, user_line_pointer, user_line_expression[user_line_pointer]);
+    int val = 0;
+    int oldp = user_line_pointer;
+    while (user_line_expression[user_line_pointer] >= '0' && user_line_expression[user_line_pointer] <= '9')
+    {
+        val = val * 10 + user_line_expression[user_line_pointer] - '0';
+        user_line_pointer++;
+    }
+    
+    if (user_line_pointer == oldp)
+        SyntaxErr(user_line_pointer, "user_line_pointer == oldp");
+    printf("(%s)\texit\tptr=%d.symbol=%c\n", __FUNCTION__, user_line_pointer, user_line_expression[user_line_pointer]);
+    return Create_Node(NUM_DATA, val, NULL, NULL);
+}
+
+// Обработать "ядро" - выражение в скобках, или переменная, или число.
+static NODE* Get_Kernel()
+{
+
+    printf("(%s)\tenter\tptr=%d.symbol=%c\n", __FUNCTION__, user_line_pointer, user_line_expression[user_line_pointer]);
+    if (user_line_expression[user_line_pointer] == '(')
+    {
+        user_line_pointer++;
+        NODE* tree = Get_Sumsub();
+        if (user_line_expression[user_line_pointer] != ')')
+            SyntaxErr(user_line_pointer, "user_line_expression[user_line_pointer] != ')'");
+        user_line_pointer++;
+        printf("(%s)\texit\tptr=%d.symbol=%c\n", __FUNCTION__, user_line_pointer, user_line_expression[user_line_pointer]);
+        return tree;
+    }
+    else
+    {
+        if (user_line_expression[user_line_pointer] == 'x') 
+        {
+            user_line_pointer++;
+            printf("(%s)\texit\tptr=%d.symbol=%c\n", __FUNCTION__, user_line_pointer, user_line_expression[user_line_pointer]);
+            return Create_Node(VAR_DATA, 'x', NULL, NULL);
+        }
+        else 
+            {
+                
+                return Get_Number();
+            }
+    }
+}
+ 
+// обработать функцию.
+static NODE* Get_Func()
+{
+   printf("(%s)\tenter\tptr=%d.symbol=%c\n", __FUNCTION__, user_line_pointer, user_line_expression[user_line_pointer]);
+    NODE* op_tree = NULL;
+    if (user_line_expression[user_line_pointer] == 'c' || user_line_expression[user_line_pointer] == 's' || user_line_expression[user_line_pointer] == 'l')
+    {
+        char sign = user_line_expression[user_line_pointer];
+        user_line_pointer++;
+        op_tree = Create_Node(OP_DATA, sign, Create_Node(NUM_DATA, 0, NULL, NULL), Get_Func());
+    }
+    NODE* right_tree = Get_Kernel();
+   
+    printf("(%s)\texit\tptr=%d.symbol=%c\n", __FUNCTION__, user_line_pointer, user_line_expression[user_line_pointer]);
+    if (op_tree) return op_tree;
+    return right_tree;
+}
+
+// обработать возведение в степень.
+static NODE* Get_Degree()
+{
+   printf("(%s)\tenter\tptr=%d.symbol=%c\n", __FUNCTION__, user_line_pointer, user_line_expression[user_line_pointer]);
+    NODE* op_tree = NULL;
+    NODE* left_tree = Get_Func();
+    if (user_line_expression[user_line_pointer] == '^')
+    {
+        char sign = user_line_expression[user_line_pointer];
+        user_line_pointer++;
+        op_tree = Create_Node(OP_DATA, sign, left_tree, Get_Degree());
+    }
+   
+    printf("(%s)\texit\tptr=%d.symbol=%c\n", __FUNCTION__, user_line_pointer, user_line_expression[user_line_pointer]);
+    if (op_tree) return op_tree;
+    return left_tree;
+}
+
+// обработать умножение.
+static NODE* Get_Muldiv()
+{
+   printf("(%s)\tenter\tptr=%d.symbol=%c\n", __FUNCTION__, user_line_pointer, user_line_expression[user_line_pointer]);
+    NODE* op_tree = NULL;
+    NODE* left_tree = Get_Degree();
+    if (user_line_expression[user_line_pointer] == '*' || user_line_expression[user_line_pointer] == '/')
+        {
+            char sign = user_line_expression[user_line_pointer];
+            user_line_pointer++;
+            op_tree = Create_Node(OP_DATA, sign, left_tree, Get_Muldiv());
+        }
+   printf("(%s)\texit\tptr=%d.symbol=%c\n", __FUNCTION__, user_line_pointer, user_line_expression[user_line_pointer]);
+    if (op_tree) return op_tree;
+    return left_tree;
+}
+
+// Обработать сумму.
+NODE* Get_Sumsub()
+{
+    printf("(%s)\tenter\tptr=%d.symbol=%c\n", __FUNCTION__, user_line_pointer, user_line_expression[user_line_pointer]);
+    NODE* op_tree = NULL;
+    NODE* left_tree = Get_Muldiv();
+    if (user_line_expression[user_line_pointer] == '+' || user_line_expression[user_line_pointer] == '-')
+    {
+        char sign = user_line_expression[user_line_pointer];
+        user_line_pointer++;
+        op_tree = Create_Node(OP_DATA, sign, left_tree, Get_Sumsub());
+    }
+    printf("(%s)\texit\tptr=%d.symbol=%c\n", __FUNCTION__, user_line_pointer, user_line_expression[user_line_pointer]);
+    if (op_tree) return op_tree;
+    return left_tree;
+}
+
+// обработать дерево 
+static NODE* Get_Expression_Tree()
+{
+    NODE* tree = Get_Sumsub();
+    if (user_line_expression[user_line_pointer] != '\0')
+        SyntaxErr(user_line_pointer, "user_line_expression[user_line_pointer] != '\\0'");
+
+    user_line_pointer++;
+    
+    return tree;
+}
+
+
 // Считать данные с файла и создать дерево.
-int Read_Data(NODE* node)
+static int Read_Data(NODE* node)
 {
     FILE* file = fopen(database_file_name, "r");
 
@@ -284,9 +352,34 @@ int Read_Data(NODE* node)
 }
 
 
+// работа с пользователем (читать из базы данных или из ввода)
+void Handle_Read_Request(NODE* head)
+{
+    printf("Choose how to get input data:\n[1] read database_file_name=%s\n[2] read expression from consol.\n", database_file_name);
+    char answer = '\0';
+    while (answer != '1' && answer != '2')
+    {
+        printf("Input:");
+        scanf("%c", &answer);
+        getchar(); // Достать '\n'
+    }
+
+    if (answer == '1') Read_Data(head);
+    else 
+    {
+        printf("Enter expression:%s\n", user_line_expression);
+        //scanf("%s", user_line_expression);
+        NODE* global_tree = Get_Expression_Tree();
+
+        head->type = global_tree->type;
+        head->data = global_tree->data;
+        head->left = global_tree->left;
+        head->right = global_tree->right;
+    }
+}
+
 // Рекурсивно записываем дерево
-static void 
-Write_New_Node(FILE* file, NODE* node)
+static void Write_New_Node(FILE* file, NODE* node)
 {
     fprintf(file, "{\n");
     if (node->type == OP_DATA || node->type == VAR_DATA)
@@ -307,3 +400,4 @@ int Write_Data(NODE* node)
     fclose(file);
     return 0;
 }
+
