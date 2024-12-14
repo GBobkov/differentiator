@@ -1,12 +1,12 @@
 #include "diffor.h"
 #include "tree_for_diff.h"
 #include "optimizator.h"
+#include "write_data.h"
 
 #include <stdio.h>
 #include <assert.h>
 
-NODE* global_tree_head = NULL;
-
+// NODE* global_tree_head = NULL;
 
 // Рекурсивная функция вычисления производной
 static NODE* New_Step_Drvt(NODE* node)
@@ -46,6 +46,17 @@ static NODE* New_Step_Drvt(NODE* node)
             node->left = Create_Node(OP_DATA, '*', New_Step_Drvt(Copy_Node(left)), Copy_Node(right));
             node->right = Create_Node(OP_DATA, '*', Copy_Node(left), New_Step_Drvt(Copy_Node(right)));
             //printf("newstep %s:%d(%s)\n", __FILE__, __LINE__, __FUNCTION__); Tree_Dump("smotrim.dot", node); scanf("%c");
+            return Copy_Node(node);
+        }
+        if (node->data == '/')
+        {
+            node->data = '/';
+
+            NODE* left = node->left;
+            NODE* right = node->right;
+            node->left = Create_Node(OP_DATA, '-', Create_Node(OP_DATA, '*', New_Step_Drvt(left), Copy_Node(right)), Create_Node(OP_DATA, '*', left, Copy_Node(right)));
+            node->right = Create_Node(OP_DATA, '^', Copy_Node(right), Create_Node(NUM_DATA, 2, NULL, NULL));
+            
             return Copy_Node(node);
         }
         if (node->data == 'l')
@@ -134,6 +145,9 @@ static NODE* New_Step_Drvt(NODE* node)
     return NULL;
 }
 
+static FILE* latex_ptr = NULL;
+static const char *_dump_start_fname = "dump_start.dot";
+static const char *_dump_nonoptim_dirt_fname = "dump_diritive.dot";
 
 
 // Функция вычисляет произвоную.
@@ -141,18 +155,21 @@ void Calculate_Derivative(void)
 {
     NODE* head = Create_Node(NONE_DATA, '\0', NULL, NULL);
     Handle_Read_Request(head);
-    global_tree_head = head;
-    Tree_Dump("dump_start.dot", head);
+    Open_LaTEX_File();
+    //global_tree_head = head;
+    Tree_Dump(_dump_start_fname, head);
     head = New_Step_Drvt(head);
-    Tree_Dump("dump_diritive.dot", head);
+    Tree_Dump(_dump_nonoptim_dirt_fname, head);
     int changes = 0;
     do
     {
         changes = 0;
         Optimization(head, &changes);
-        printf("newstep %s:%d(%s)\n", __FILE__, __LINE__, __FUNCTION__); Tree_Dump("smotrim.dot", head); scanf("%c");
+        //printf("newstep %s:%d(%s)\n", __FILE__, __LINE__, __FUNCTION__); Tree_Dump("smotrim.dot", head); scanf("%c");
     } while (changes > 0);
-    //printf("I DID IT !!!!\n");
-    //Write_Data(head);
+
+    Write_Data2Base(head);
+    Write_Data2LaTEX(head);
     Tree_Dump("dump_end.dot", head);
+    Close_LaTEX_File();
 }

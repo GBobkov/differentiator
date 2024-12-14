@@ -68,6 +68,7 @@ void Tree_Dump(const char* dump_fname, NODE* node)
 
     fprintf (dump_file, "digraph G\n");
     fprintf (dump_file, "{\n");
+    fprintf (dump_file, "rankdir=TB;\n");
     fprintf (dump_file, "splines=line;\n");
     fprintf (dump_file, "nodesep=2  ;\n"); // расстояние между ячейками
     fprintf (dump_file, "node[shape=\"oval\", style=\"rounded, filled\"];\n\n");

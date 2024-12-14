@@ -8,7 +8,7 @@
 void Handle_Read_Request(NODE* head);
 
 // Сохранить данные
-int Write_Data(NODE* node);
+int Write_Data2Base(NODE* node);
 
 // Создать узел с массивом data.
 NODE* Create_Node(DATA_TYPE_CNST var_type, int data,  NODE* left, NODE* right);
