@@ -177,4 +177,5 @@ void Calculate_Derivative(void)
     Write_Data2LaTEX(head);
     Tree_Dump("dump_end.dot", head);
     Close_LaTEX_File();
+    free(head);
 }

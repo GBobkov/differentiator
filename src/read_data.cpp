@@ -25,9 +25,7 @@ static void Get_New_Line(FILE* file, char *answer)
 {   
     
     fgets(answer, BUFSIZE, file);
-    
     remove_newline(answer);
-    
 }
 
 
@@ -324,7 +322,7 @@ NODE* Get_Sumsub()
 }
 
 // обработать дерево 
-static NODE* Get_Expression_Tree(void)
+static void Get_Expression_Tree(NODE* head)
 {
     
     NODE* tree = Get_Sumsub();
@@ -332,8 +330,8 @@ static NODE* Get_Expression_Tree(void)
         SyntaxErr(user_line_pointer, "user_line_expression[user_line_pointer] != '\\0'");
 
     user_line_pointer++;
-    
-    return tree;
+
+    *head = *tree;
 }
 
 
@@ -374,10 +372,6 @@ void Handle_Read_Request(NODE* head)
         printf("Enter expression:");
         scanf("%s", user_line_expression);
         
-        NODE* global_tree = Get_Expression_Tree();
-        head->type = global_tree->type;
-        head->data = global_tree->data;
-        head->left = global_tree->left;
-        head->right = global_tree->right;
+        Get_Expression_Tree(head);
     }
 }
