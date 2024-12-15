@@ -56,31 +56,24 @@ static bool Zero_sumsub_optim(NODE* head)
 {
     if (!head) return false;
 
-    if (head->right->type == NUM_DATA && head->right->data == 0)
-    {
-        // TODO: внимательно free(). 
-        
-        Destroy_Tree(head->right);
+    NODE* left = head->left;
+    NODE* right = head->right;
 
-        head->type = head->left->type;
-        head->data = head->left->data;
-            
-        head->right = Copy_Node(head->left->right);
-        head->left = Copy_Node(head->left->left);
-            
-        return true;
+    #define CODEGEN(side1, side2) if (side1->type == NUM_DATA && side2->data == 0)\
+    {\
+        Destroy_Tree(side2);\
+        head->type = side1->type;\
+        head->data = side1->data;\
+        head->right = side1->right;\
+        head->left = side1->left;\
+        Destroy_Node(side1);\
+        return true;\
     }
-    else if (head->left->type == NUM_DATA && head->left->data == 0)
-    {
-        Destroy_Tree(head->left);
 
-        head->type = head->right->type;
-        head->data = head->right->data;
-        
-        head->left = Copy_Node(head->right->left);
-        head->right = Copy_Node(head->right->right);
-        return true;
-    }
+    CODEGEN(left, right)
+    CODEGEN(right, left)
+
+    #undef CODEGEN
     return false;
 }
 
@@ -110,15 +103,20 @@ static bool One_div_optim(NODE* head)
 {
     if (!head) return false;
 
-    if (head->right->type == NUM_DATA && head->right->data == 1)
+    NODE* left = head->left;
+    NODE* right = head->right;
+    
+    if (right->type == NUM_DATA && right->data == 1)
     {
-        Destroy_Tree(head->right);
+        Destroy_Tree(right);
 
         head->type = head->left->type;
         head->data = head->left->data;
 
-        head->right = Copy_Node(head->left->right);
-        head->left = Copy_Node(head->left->left);
+        head->right = head->left->right;
+        head->left = head->left->left;
+
+        Destroy_Node(left);
         return true;
     }    
     return false;
@@ -149,30 +147,24 @@ static bool Zero_mul_optim(NODE* head)
 static bool One_mul_optim(NODE* head)
 {
     if (!head) return false;
-
-    //TODO: Destroy ненужной памяти.
-    if ((head->right->type == NUM_DATA) && (head->right->data == 1))
-    {
-        Destroy_Tree(head->right);
-
-        head->type = head->left->type;
-        head->data = head->left->data;
-
-        head->right = Copy_Node(head->left->right);
-        head->left = Copy_Node(head->left->left);
-        return true;
+ 
+    NODE* left = head->left;
+    NODE* right = head->right;
+    #define CODEGEN(side1, side2) if (side2->type == NUM_DATA && side2->data == 1)\
+    {\
+        Destroy_Tree(side2);\
+        head->type = side1->type;\
+        head->data = side1->data;\
+        head->right = side1->right;\
+        head->left = side1->left;\
+        Destroy_Node(side1);\
+        return true;\
     }
-    if ((head->left->type == NUM_DATA) && (head->left->data == 1))
-    {
-        Destroy_Tree(head->left);
 
-        head->type = head->right->type;
-        head->data = head->right->data;
+    CODEGEN(left, right)
+    CODEGEN(right, left)
 
-        head->left = Copy_Node(head->right->left);
-        head->right = Copy_Node(head->right->right);
-        return true;
-    }
+    #undef CODEGEN
     return false;
 }
  
@@ -181,12 +173,14 @@ static bool Zero_One_deg_optim(NODE* head)
 {
     if (!head) return false;
 
-    if (head->right->type == NUM_DATA)
+    NODE* left = head->left;
+    NODE* right = head->right;
+    if (right->type == NUM_DATA)
     {
-        if (head->right->data == 0)
+        if (right->data == 0)
         {
-            Destroy_Tree(head->right);
-            Destroy_Tree(head->left);
+            Destroy_Tree(right);
+            Destroy_Tree(left);
 
             head->type = NUM_DATA;
             head->data = 1;
@@ -197,17 +191,14 @@ static bool Zero_One_deg_optim(NODE* head)
         }
         else if (head->right->data == 1)
             {
-                Destroy_Tree(head->right);
+                Destroy_Tree(right);
 
-                head->type = head->left->type;
-                head->data = head->left->data;
+                head->type = left->type;
+                head->data = left->data;
+                head->right = left->right;
+                head->left = left->left;
                 
-                NODE* for_free = head->left;
-                
-                head->right = head->left->right;
-                head->left = head->left->left;
-                
-                Destroy_Node(for_free);
+                Destroy_Node(left);
                 
                 return true;
             }
