@@ -15,7 +15,7 @@ static void Nodes_Init_2Dump(FILE* dump_file, NODE* node)
 
     #define TITLE_COLOR "\"lightblue\""
     if (node->type == OP_DATA || node->type == VAR_DATA)
-        fprintf (dump_file, "NODE_0x%p[label = \"%c\",  fillcolor = " TITLE_COLOR "];\n", node, node->data, node->type);
+        fprintf (dump_file, "NODE_0x%p[label = \"%c\",  fillcolor = " TITLE_COLOR "];\n", node, node->data);
     else if (node->type == NUM_DATA)
         fprintf (dump_file, "NODE_0x%p[label = \"%d\",  fillcolor = " TITLE_COLOR "];\n", node, node->data);
     else
@@ -87,8 +87,18 @@ void Tree_Dump(const char* dump_fname, NODE* node)
 
     char create_png_cmd[BUFSIZE] = {};
     char png_fname[BUFSIZE] = {};
+    if (strlen(dump_fname) > BUFSIZE - strlen(".png"))
+    {
+        printf("Very big dumpfname. Can't dump to %s\n", dump_fname);
+        return;
+    }
     strcpy(png_fname, dump_fname);
     char *dot_ptr = strchr(png_fname, '.');
+    if (!dot_ptr)
+    {
+        printf("Can't dump. Incorrect dump_fname=%s\n", dump_fname);
+        return;
+    }
     strcpy(dot_ptr, ".png");
 
     sprintf(create_png_cmd, "dot %s -Tpng -o %s", dump_fname, png_fname); 

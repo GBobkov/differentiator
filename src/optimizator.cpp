@@ -224,7 +224,7 @@ static bool Nums_optim(NODE* head)
     // {printf("YAAAAA UMER!!\n"); Tree_Dump("smotrim.dot", head);scanf("%c");*/}
     if (!head || head->type == NUM_DATA || head->type == VAR_DATA) return false;
     if (!Is_Num(head)) return false;
-    if (head->data != '+' || head->data != '-' || head->data != '*' ||head->data != '/') return false;
+    if (head->data == '+' || head->data == '-' || head->data == '*' ||head->data == '/') return false;
     
     head->data = Calculate_Tree(head);
     head->type = NUM_DATA;
