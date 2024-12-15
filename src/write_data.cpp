@@ -44,15 +44,13 @@ static int Begin_TexDump(FILE* tex_dump){
     return NO_ERROR;
 }
 
-int End_TexDump(FILE* tex_dump){
+static int End_TexDump(FILE* tex_dump){
     if (tex_dump == NULL){
         printf("No such file\n");
         return FILE_NOT_OPEN;
     }
 
     fprintf(tex_dump, "\\end{document}\n");
-
-    fclose(tex_dump);
 
     return NO_ERROR;
 }

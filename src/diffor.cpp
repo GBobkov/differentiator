@@ -4,7 +4,6 @@
 #include "write_data.h"
 #include "read_data.h"
 
-
 #include <stdio.h>
 #include <assert.h>
 
@@ -19,14 +18,14 @@ static NODE* New_Step_Drvt(NODE* node)
     {
         node->data = 0;
         //printf("newstep %s:%d(%s)\n", __FILE__, __LINE__, __FUNCTION__); Tree_Dump("smotrim.dot", node); scanf("%c");
-        return Create_Node(NUM_DATA, 0, NULL, NULL);
+        return node;
     }
     if (node->type == VAR_DATA)
     {
         node->type = NUM_DATA;
         node->data = 1;
         //printf("newstep %s:%d(%s)\n", __FILE__, __LINE__, __FUNCTION__); Tree_Dump("smotrim.dot", node); scanf("%c");
-        return Create_Node(NUM_DATA, 1, NULL, NULL);
+        return node;
     }
     if (node->type == OP_DATA)
     {
@@ -45,10 +44,10 @@ static NODE* New_Step_Drvt(NODE* node)
             node->data = '+';
             NODE* left = node->left;
             NODE* right = node->right;
-            node->left = Create_Node(OP_DATA, '*', New_Step_Drvt(Copy_Node(left)), Copy_Node(right));
-            node->right = Create_Node(OP_DATA, '*', Copy_Node(left), New_Step_Drvt(Copy_Node(right)));
+            node->left = Create_Node(OP_DATA, '*', New_Step_Drvt(Copy_Node(left)), right);
+            node->right = Create_Node(OP_DATA, '*', left, New_Step_Drvt(Copy_Node(right)));
             //printf("newstep %s:%d(%s)\n", __FILE__, __LINE__, __FUNCTION__); Tree_Dump("smotrim.dot", node); scanf("%c");
-            return Copy_Node(node);
+            return node;
         }
         if (node->data == '/')
         {
@@ -56,10 +55,10 @@ static NODE* New_Step_Drvt(NODE* node)
 
             NODE* left = node->left;
             NODE* right = node->right;
-            node->left = Create_Node(OP_DATA, '-', Create_Node(OP_DATA, '*', New_Step_Drvt(left), Copy_Node(right)), Create_Node(OP_DATA, '*', Copy_Node(left), New_Step_Drvt(right)));
+            node->left = Create_Node(OP_DATA, '-', Create_Node(OP_DATA, '*', New_Step_Drvt(Copy_Node(left)), right), Create_Node(OP_DATA, '*', left, New_Step_Drvt(Copy_Node(right))));
             node->right = Create_Node(OP_DATA, '^', Copy_Node(right), Create_Node(NUM_DATA, 2, NULL, NULL));
             
-            return Copy_Node(node);
+            return node;
         }
         if (node->data == 'l')
         {
@@ -71,7 +70,7 @@ static NODE* New_Step_Drvt(NODE* node)
             node->left = New_Step_Drvt(Copy_Node(node->right));
             //printf("node->right->data=%c\n", node->right->data);
             //printf("IT's 2lnDUMP!\n");Tree_Dump("smotrim.dot", node); scanf("%c");
-            return Copy_Node(node);
+            return node;
         }
         if (node->data == 's')
         {
@@ -79,69 +78,73 @@ static NODE* New_Step_Drvt(NODE* node)
 
             //printf("newstep %s:%d(%s)\n", __FILE__, __LINE__, __FUNCTION__); Tree_Dump("smotrim.dot", node); scanf("%c");
             node->data = '*';
-            node->left = Create_Node(OP_DATA, 'c', Create_Node(NUM_DATA, 0, NULL, NULL), Copy_Node(node->right));
-            node->right = New_Step_Drvt(node->right);
+            NODE* left = node->left;
+            NODE* right = node->right;
+
+            node->left = Create_Node(OP_DATA, 'c', left, right);
+            node->right = New_Step_Drvt(Copy_Node(right));
             //printf("newstep %s:%d(%s)\n", __FILE__, __LINE__, __FUNCTION__); Tree_Dump("smotrim.dot", node); scanf("%c");
-            return Copy_Node(node);
+            return node;
         }
         if (node->data == 'c')
         {
             if (Is_Num(node->right)) return Create_Node(NUM_DATA, 0, NULL, NULL);
             
             node->data = '*';
+
+            NODE* left = node->left;
+            NODE* right = node->right;
+
             node->left = Create_Node(NUM_DATA, -1, NULL, NULL);
-            node->right = Create_Node(OP_DATA, '*', Create_Node(OP_DATA, 's', Create_Node(NUM_DATA, 1, NULL, NULL), New_Step_Drvt(node->right)), New_Step_Drvt(node->right));
-            return Copy_Node(node);
+            node->right = Create_Node(OP_DATA, '*', Create_Node(OP_DATA, 's', left, right), New_Step_Drvt(Copy_Node(right)));
+            return node;
         }
         if (node->data == '^')
         {
-            if (Is_Num(node->left))
+            NODE* left = node->left;
+            NODE* right = node->right;
+            
+            if (Is_Num(left))
             {
                 // константа
-                if (Is_Num(node->right))
+                if (Is_Num(right))
                 {
                     node->type = NUM_DATA;
                     node->data = 0;
-                    Destroy_Tree(node->left);
-                    Destroy_Tree(node->right);
+                    Destroy_Tree(left);
+                    Destroy_Tree(right);
                     node->left = NULL;
                     node->right = NULL;
                 }
                 else // показательная функция
                 {
-                    node->left = Create_Node(OP_DATA, '*', Create_Node(OP_DATA, 'l', Create_Node(NUM_DATA, 0, NULL, NULL), Create_Node(NUM_DATA, node->left->data, NULL, NULL)), Copy_Node(node));
-                    node->right = New_Step_Drvt(node->right);
+                    node->left = Create_Node(OP_DATA, '*', Create_Node(OP_DATA, 'l', Create_Node(NUM_DATA, 0, NULL, NULL), Create_Node(NUM_DATA, left->data, NULL, NULL)), Create_Node(node->type, node->data, left, right));
+                    node->right = New_Step_Drvt(Copy_Node(right));
                     node->data = '*';
                 }
                 
             }
-            else if (!Is_Num(node->left) && Is_Num(node->right)) // степенная функция
+            else if (!Is_Num(left) && Is_Num(right)) // степенная функция
             {
                 node->data = '*';
-                int degree = Calculate_Tree(node->right);
-                node->right = Create_Node(OP_DATA, '*', Create_Node(OP_DATA, '^', Copy_Node(node->left), Create_Node(NUM_DATA, degree - 1, NULL, NULL)), New_Step_Drvt(node->left));
+                int degree = Calculate_Tree(right);
+                node->right = Create_Node(OP_DATA, '*', Create_Node(OP_DATA, '^', left, Create_Node(NUM_DATA, degree - 1, NULL, NULL)), New_Step_Drvt(Copy_Node(left)));
                 node->left = Create_Node(NUM_DATA, degree, NULL, NULL);
-                Destroy_Tree(node->right);
-                
                 
             }
-            else if (!Is_Num(node->left) && !Is_Num(node->right)) // функция показательная с переменным основанием.
+            else if (!Is_Num(left) && !Is_Num(right)) // функция показательная с переменным основанием.
             {
 
                 //printf("newstep %s:%d(%s)\n", __FILE__, __LINE__, __FUNCTION__); Tree_Dump("smotrim.dot", node); scanf("%c");
                 
-                NODE* old_node = node->left;
-                node->left = Copy_Node(node);
-                Destroy_Tree(old_node);
-                old_node = node->right;
+                node->left = Create_Node(node->type, node->data, left, right);
                 //printf("newstep %s:%d(%s)\n", __FILE__, __LINE__, __FUNCTION__); Tree_Dump("smotrim.dot", node); scanf("%c");
-                node->right = New_Step_Drvt(Create_Node(OP_DATA, '*', Create_Node(OP_DATA, 'l', Create_Node(NUM_DATA, 1, NULL, NULL), Copy_Node(node->left->left)), Copy_Node(node->right)));
-                Destroy_Tree(old_node);
+                node->right = New_Step_Drvt(Create_Node(OP_DATA, '*', Create_Node(OP_DATA, 'l', Create_Node(NUM_DATA, 0, NULL, NULL), Copy_Node(left)), Copy_Node(node->right)));
                 node->data = '*';
                 //printf("stepen' newstep %s:%d(%s)\n", __FILE__, __LINE__, __FUNCTION__); Tree_Dump("smotrim.dot", node); scanf("%c");
             }
             
-            return Copy_Node(node);
+            return node;
         }
     }
     return NULL;
