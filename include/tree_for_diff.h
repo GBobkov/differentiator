@@ -4,8 +4,6 @@
 #include "tree_dump.h"
 #include "constants.h"
 
-// Сохранить данные
-int Write_Data2Base(NODE* node);
 
 // Создать узел с массивом data.
 NODE* Create_Node(DATA_TYPE_CNST var_type, int data,  NODE* left, NODE* right);
