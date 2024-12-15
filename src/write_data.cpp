@@ -149,13 +149,13 @@ void Write_Data2LaTEX(NODE* head)
             if (head->right->type == OP_DATA)
             {
                 isopenbrckt = true;
-                fprintf(latex_ptr, "{");
+                fprintf(latex_ptr, "{(");
             }
             Write_Data2LaTEX(head->right);
             if (isopenbrckt)
             {
                 isopenbrckt = false;
-                fprintf(latex_ptr, "}");
+                fprintf(latex_ptr, ")}");
             }
         }
         else if (head->data == 's')
