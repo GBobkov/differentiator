@@ -12,6 +12,8 @@ void Close_LaTEX_File();
 // запись итоговой производной в латех
 void Write_Data2LaTEX(NODE* head);
 
+// Сохранить данные в базу данных
+int Write_Data2Base(NODE* node);
 
 // ошибки
 enum WRITE_DATA_ERRORS

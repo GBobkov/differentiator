@@ -4,9 +4,6 @@
 #include "tree_dump.h"
 #include "constants.h"
 
-// работа с пользователем (читать из базы данных или из ввода)
-void Handle_Read_Request(NODE* head);
-
 // Сохранить данные
 int Write_Data2Base(NODE* node);
 

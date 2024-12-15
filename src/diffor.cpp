@@ -2,6 +2,8 @@
 #include "tree_for_diff.h"
 #include "optimizator.h"
 #include "write_data.h"
+#include "read_data.h"
+
 
 #include <stdio.h>
 #include <assert.h>
