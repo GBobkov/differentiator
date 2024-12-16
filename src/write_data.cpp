@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 
+static const char *_latex_fname = "diritivate.tex";
 static FILE* latex_ptr = NULL;
 
 

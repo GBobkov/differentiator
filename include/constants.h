@@ -36,7 +36,6 @@ enum OPERATIONS
 };
 
 static const char* database_file_name = "database.txt";
-static const char *_latex_fname = "diritivate.tex";
 
 
 #endif

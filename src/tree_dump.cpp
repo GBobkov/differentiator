@@ -1,6 +1,7 @@
 #include "tree_dump.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 #include <string.h>
 

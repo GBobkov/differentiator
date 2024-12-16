@@ -113,7 +113,7 @@ static void Read_New_Node(FILE* file, NODE* node)
 {
      
     Handle_New_Line(file, node);
-    char bracket = '\0';
+    int bracket = '\0';
     bracket = fgetc(file); // Достаём скобку.
     fgetc(file);    // Достаём \n.
     
@@ -142,47 +142,47 @@ static void Read_New_Node(FILE* file, NODE* node)
 }
 
 
- // проверяет наличие строки comparing в начале строки string.
-static bool isbegin(const char* string, const char* comparing)
-{
-    int pointer = 0;
-    while (comparing[pointer] != '\0')
-    {
-        if (string[pointer] != comparing[pointer])
-            return false;
-        pointer++;
-    }
-    return true;
-}
+//  // проверяет наличие строки comparing в начале строки string.
+// static bool isbegin(const char* string, const char* comparing)
+// {
+//     int pointer = 0;
+//     while (comparing[pointer] != '\0')
+//     {
+//         if (string[pointer] != comparing[pointer])
+//             return false;
+//         pointer++;
+//     }
+//     return true;
+// }
 
 
-struct FUNC_INFO
-{
-    int func; // код функции
-    int len;
-};
+// struct FUNC_INFO
+// {
+//     int func; // код функции
+//     int len;
+// };
 
-// создаёт структуру
-static FUNC_INFO* Create_Func_Info(int func, int len)
-{
-    FUNC_INFO* info = (FUNC_INFO*) calloc(1, sizeof(FUNC_INFO));
-    info->func = func;
-    info->len = len;
-    return info;
-}
+// // создаёт структуру
+// static FUNC_INFO* Create_Func_Info(int func, int len)
+// {
+//     FUNC_INFO* info = (FUNC_INFO*) calloc(1, sizeof(FUNC_INFO));
+//     info->func = func;
+//     info->len = len;
+//     return info;
+// }
 
-// проверяет является ли данная строка функцией. Возвращает струку информации о операции.
-static FUNC_INFO* get_func_info(const char* operation)
-{
-    #define CODEGEN(oper) if (isbegin(operation, #oper)) return Create_Func_Info(oper##_OP, strlen(#oper))
-    CODEGEN(LN);
-    CODEGEN(COS);
-    CODEGEN(SIN);
-    CODEGEN(TAN);
-    CODEGEN(COT);
-    return Create_Func_Info(0, 0);
-    #undef CODEGEN
-}
+// // проверяет является ли данная строка функцией. Возвращает струку информации о операции.
+// static FUNC_INFO* get_func_info(const char* operation)
+// {
+//     #define CODEGEN(oper) if (isbegin(operation, #oper)) return Create_Func_Info(oper##_OP, strlen(#oper))
+//     CODEGEN(LN);
+//     CODEGEN(COS);
+//     CODEGEN(SIN);
+//     CODEGEN(TAN);
+//     CODEGEN(COT);
+//     return Create_Func_Info(0, 0);
+//     #undef CODEGEN
+// }
 
 
 
@@ -322,7 +322,7 @@ NODE* Get_Sumsub()
 }
 
 // обработать дерево 
-static void Get_Expression_Tree(NODE* head)
+static NODE* Get_Expression_Tree()
 {
     
     NODE* tree = Get_Sumsub();
@@ -331,15 +331,16 @@ static void Get_Expression_Tree(NODE* head)
 
     user_line_pointer++;
 
-    *head = *tree;
+    return tree;
 }
 
 
 // Считать данные с файла и создать дерево.
-static int Read_Data(NODE* node)
+static NODE* Read_Data(void)
 {
     FILE* file = fopen(database_file_name, "r");
 
+    NODE* node = Create_Node(NONE_DATA, '\0', NULL, NULL);
     assert(node != NULL);
     assert(file != NULL);
     
@@ -350,12 +351,12 @@ static int Read_Data(NODE* node)
     
     fclose(file);
 
-    return 0;
+    return node;
 }
 
 
 // работа с пользователем (читать из базы данных или из ввода)
-void Handle_Read_Request(NODE* head)
+NODE* Handle_Read_Request(void)
 {
     printf("Choose how to get input data:\n[1] read database_file_name=%s\n[2] read expression from consol.\n", database_file_name);
     char answer[10] = {};
@@ -365,13 +366,11 @@ void Handle_Read_Request(NODE* head)
         scanf("%c", answer);
         getchar(); // Достать '\n'
     }
-
-    if (answer[0] == '1') Read_Data(head);
+    if (answer[0] == '1') return Read_Data();
     else 
     {
         printf("Enter expression:");
         scanf("%s", user_line_expression);
-        
-        Get_Expression_Tree(head);
+        return Get_Expression_Tree();
     }
 }

@@ -5,6 +5,7 @@
 #include "read_data.h"
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 
 // NODE* global_tree_head = NULL;
@@ -151,15 +152,14 @@ static NODE* New_Step_Drvt(NODE* node)
 }
 
 static FILE* latex_ptr = NULL;
-static const char *_dump_start_fname = "dump_start.dot";
-static const char *_dump_nonoptim_dirt_fname = "dump_diritive.dot";
+static const char *_dump_start_fname = "build/dump_start.dot";
+static const char *_dump_nonoptim_dirt_fname = "build/dump_diritive.dot";
 
 
 // Функция вычисляет произвоную.
 void Calculate_Derivative(void)
 {
-    NODE* head = Create_Node(NONE_DATA, '\0', NULL, NULL);
-    Handle_Read_Request(head);
+    NODE* head = Handle_Read_Request();
     Open_LaTEX_File();
     //global_tree_head = head;
     Tree_Dump(_dump_start_fname, head);
@@ -175,7 +175,7 @@ void Calculate_Derivative(void)
 
     Write_Data2Base(head);
     Write_Data2LaTEX(head);
-    Tree_Dump("dump_end.dot", head);
+    Tree_Dump("build/dump_end.dot", head);
     Close_LaTEX_File();
     free(head);
 }

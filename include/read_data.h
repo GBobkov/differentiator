@@ -5,6 +5,6 @@
 
 
 // работа с пользователем (читать из базы данных или из ввода)
-void Handle_Read_Request(NODE* head);
+NODE* Handle_Read_Request(void);
 
 #endif

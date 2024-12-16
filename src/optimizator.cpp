@@ -59,7 +59,7 @@ static bool Zero_sumsub_optim(NODE* head)
     NODE* left = head->left;
     NODE* right = head->right;
 
-    #define CODEGEN(side1, side2) if (side1->type == NUM_DATA && side2->data == 0)\
+    #define CODEGEN(side1, side2) if (side2->type == NUM_DATA && side2->data == 0)\
     {\
         Destroy_Tree(side2);\
         head->type = side1->type;\
