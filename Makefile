@@ -13,12 +13,12 @@ override CFLAGS += $(COMMONINC)
 COBJ := $(addprefix $(OUT_O_DIR)/, $(CSRC:%.cpp=%.o)) 
 DEPS := $(COBJ:%.o=%.d) 
 
-.PHONY: сlean all Release Debug doxygen
+.PHONY: cleaning all Release Debug doxygen
 all: $(OUT_O_DIR)/main
 Release: $(OUT_O_DIR)/main
 Debug: $(OUT_O_DIR)/main
 
-сlean:
+cleaning:
 	rm $(COBJ) $(DEPS) 
 
 doxygen:

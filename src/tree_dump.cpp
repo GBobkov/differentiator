@@ -5,7 +5,7 @@
 #include <assert.h>
 #include <string.h>
 
-#define BUFSIZE 64
+#define CMD_SIZE 30
 
 
 // инициализация узлов в dot-file
@@ -86,9 +86,8 @@ void Tree_Dump(const char* dump_fname, NODE* node)
     #undef FREE_COLOR
     #undef BUSY_COLOR
 
-    char create_png_cmd[BUFSIZE] = {};
-    char png_fname[BUFSIZE] = {};
-    if (strlen(dump_fname) > BUFSIZE - strlen(".png"))
+    char png_fname[CMD_SIZE] = {};
+    if (strlen(dump_fname) > CMD_SIZE - strlen(".png"))
     {
         printf("Very big dumpfname. Can't dump to %s\n", dump_fname);
         return;
@@ -102,7 +101,7 @@ void Tree_Dump(const char* dump_fname, NODE* node)
     }
     strcpy(dot_ptr, ".png");
 
+    char create_png_cmd[CMD_SIZE * 3] = {}; 
     sprintf(create_png_cmd, "dot %s -Tpng -o %s", dump_fname, png_fname); 
-    //printf("cmd=%s\n", create_png_cmd);
     system(create_png_cmd);
 }

@@ -24,18 +24,16 @@ struct NODE
 // операции
 enum OPERATIONS
 {
-    SUM_OP=1,
-    SUB_OP=2,
-    MUL_OP=3,
-    DIV_OP=4,
-    LN_OP=5,
-    COS_OP=6,
-    SIN_OP=7,
-    TAN_OP=8,
-    COT_OP=9
+    SUM_OP='+',
+    SUB_OP='-',
+    MUL_OP='*',
+    DIV_OP='/',
+    LN_OP=1,
+    COS_OP=2,
+    SIN_OP=3,
+    TAN_OP=4,
+    COT_OP=5
 };
-
-static const char* database_file_name = "database.txt";
 
 
 #endif

@@ -29,7 +29,7 @@ static int pow(int num, int degree)
 
 
 // Вычислить значение операции.
-static int result_value(char operation, int ld, int rd)
+static int result_value(int operation, int ld, int rd)
 {
     if (operation == '*') return ld * rd;
     if (operation == '/') {if (rd == 0) {printf("ALARM DIV BY ZERO!\n");} return ld / rd;}

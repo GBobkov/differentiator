@@ -1,14 +1,20 @@
 #include "write_data.h"
 
+#include "read_write_files.h"
 #include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 
-static const char *_latex_fname = "diritivate.tex";
+static const char *_latex_fname = "latex/diritivate.tex";
 static FILE* latex_ptr = NULL;
 
 
 // Рекурсивно записываем дерево
 static void Write_New_Node(FILE* file, NODE* node)
 {
+    assert(file);
+    assert(node);
+
     fprintf(file, "{\n");
     if (node->type == OP_DATA || node->type == VAR_DATA)
         fprintf(file,"%c\n", node->data);
@@ -21,6 +27,8 @@ static void Write_New_Node(FILE* file, NODE* node)
 // Сохранить данные в базу данных
 int Write_Data2Base(NODE* node)
 {
+    assert(node);
+
     FILE* file = fopen(database_file_name, "w");
     Write_New_Node(file, node);
     fclose(file);
@@ -28,30 +36,36 @@ int Write_Data2Base(NODE* node)
 }
 
 // начало файла
-static int Begin_TexDump(FILE* tex_dump){
+static int Begin_TexDump(FILE* tex_dump)
+{
+    assert(tex_dump);
+
     if (tex_dump == NULL){
         printf("No such file\n");
         return FILE_NOT_OPEN;
     }
 
-    fprintf(tex_dump, "\\documentclass{article}\n");
-    fprintf(tex_dump, "\\usepackage{ucs}\n");
-    fprintf(tex_dump, "\\usepackage[utf8x]{inputenc}\n");
-    fprintf(tex_dump, "\\usepackage[russian]{babel}\n");
-    fprintf(tex_dump, "\\usepackage{amsmath}\n");
+    // fprintf(tex_dump, "\\documentclass{article}\n");
+    // fprintf(tex_dump, "\\usepackage{ucs}\n");
+    // fprintf(tex_dump, "\\usepackage[utf8x]{inputenc}\n");
+    // fprintf(tex_dump, "\\usepackage[russian]{babel}\n");
+    // fprintf(tex_dump, "\\usepackage{amsmath}\n");
 
     fprintf(tex_dump, "\\begin{document}\n\n");
 
     return NO_ERROR;
 }
 
-static int End_TexDump(FILE* tex_dump){
+static int End_TexDump(FILE* tex_dump)
+{
+    assert(tex_dump);
+
     if (tex_dump == NULL){
         printf("No such file\n");
         return FILE_NOT_OPEN;
     }
 
-    fprintf(tex_dump, "\\end{document}\n");
+    fprintf(tex_dump, "\n\\end{document}\n");
 
     return NO_ERROR;
 }
@@ -71,13 +85,16 @@ void Close_LaTEX_File()
 {
     End_TexDump(latex_ptr);
     fclose(latex_ptr);
+    char creat_cmd[BUFSIZ] = {};
+    sprintf(creat_cmd, "pdftex -output-directory=latex -enc -etex %s", _latex_fname);
+    system(creat_cmd);
 }
-
 
 
 // запись итоговой производной в латех-файл
 void Write_Data2LaTEX(NODE* head)
 {
+    assert(head);
 
     if (head->type == NUM_DATA)
         fprintf(latex_ptr, "%d", head->data);
@@ -185,3 +202,15 @@ void Write_Data2LaTEX(NODE* head)
 }
 
 
+
+// Добавляет ещё строчку в латех.
+void Write_New_Line_To_LaTEX(const char* phrase_beg, NODE* head, const char* phrase_end)
+{
+    assert(phrase_beg);
+    assert(phrase_end);
+    assert(head);
+
+    fprintf(latex_ptr, "%s", phrase_beg);
+    Write_Data2LaTEX(head);
+    fprintf(latex_ptr, "%s", phrase_end);
+}

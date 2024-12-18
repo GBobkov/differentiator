@@ -1,0 +1,44 @@
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdftex 2024.12.18)  18 DEC 2024 20:27
+entering extended mode
+ restricted \write18 enabled.
+ %&-line parsing enabled.
+**latex/diritivate.tex
+(./latex/diritivate.tex
+! Undefined control sequence.
+l.1 \begin
+          {document}
+? 
+! Undefined control sequence.
+l.4 \[
+      
+? 
+! Missing $ inserted.
+<inserted text> 
+                $
+<to be read again> 
+                   ^
+l.5 (3*x+4)^
+            {'} =
+? 
+! Undefined control sequence.
+l.7 \]
+      
+? 
+! Missing $ inserted.
+<inserted text> 
+                $
+<to be read again> 
+                   \par 
+l.8 
+    
+? 
+[1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] )</usr/share/texlive/tex
+mf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist
+/fonts/type1/public/amsfonts/cm/cmsy5.pfb>
+Output written on latex/diritivate.pdf (1 page, 20616 bytes).
+PDF statistics:
+ 16 PDF objects out of 1000 (max. 8388607)
+ 10 compressed objects within 1 object stream
+ 0 named destinations out of 1000 (max. 500000)
+ 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+
