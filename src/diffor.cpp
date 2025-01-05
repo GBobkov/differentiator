@@ -11,6 +11,17 @@
 
 static int step_counter = 1;
 
+static NODE* Rewrite_Node2Zero(NODE* node)
+{
+    node->type = NUM_DATA;
+    Destroy_Tree(node->left);
+    Destroy_Tree(node->right);
+    node->data = 0;
+    node->left = NULL;
+    node->right = NULL;
+    return node;
+}
+
 // Рекурсивная функция вычисления производной
 static NODE* New_Step_Drvt(NODE* node)
 {
@@ -29,42 +40,28 @@ static NODE* New_Step_Drvt(NODE* node)
         return node;
     }
     if (node->type == OP_DATA)
-    {
-        
+    {   
+        NODE* left = node->left;
+        NODE* right = node->right;
         if (node->data == '+' || node->data == '-')
         {
-            
-            // Write_New_Line_To_LaTEX("\n\\[(", node, ")^{'} = ");
-            // Write_New_Line_To_LaTEX("(", node->left, ")^{'} +");
-            // Write_New_Line_To_LaTEX(" (", node->right, ")^{'}\n\\]\n");
-
-            node->left = New_Step_Drvt(node->left);
-            node->right = New_Step_Drvt(node->right);
+            node->left = New_Step_Drvt(left);
+            node->right = New_Step_Drvt(right);
             
             return node;
         }
         if (node->data == '*')
         {   
-            //Write_New_Line_To_LaTEX("\n\\[\n(", node, ")^{'} = ");
-            node->data = '+';
-            NODE* left = node->left;
-            NODE* right = node->right;
-            // Write_New_Line_To_LaTEX("(", node->left, ")^{'} *");
-            // Write_New_Line_To_LaTEX(" ", node->right, " +");
-            // Write_New_Line_To_LaTEX(" ", node->left, " *");
-            // Write_New_Line_To_LaTEX(" (", node->right, ")^{'}\n\\]\n");
+            node->data = '+';   
             node->left = Create_Node(OP_DATA, '*', New_Step_Drvt(Copy_Node(left)), right);
             node->right = Create_Node(OP_DATA, '*', left, New_Step_Drvt(Copy_Node(right)));
             
-            //Write_New_Line_To_LaTEX("= ", node, "\n\\]\n");
             return node;
         }
         if (node->data == '/')
         {
             node->data = '/';
 
-            NODE* left = node->left;
-            NODE* right = node->right;
             node->left = Create_Node(OP_DATA, '-', Create_Node(OP_DATA, '*', New_Step_Drvt(Copy_Node(left)), right), Create_Node(OP_DATA, '*', left, New_Step_Drvt(Copy_Node(right))));
             node->right = Create_Node(OP_DATA, '^', Copy_Node(right), Create_Node(NUM_DATA, 2, NULL, NULL));
             
@@ -73,21 +70,17 @@ static NODE* New_Step_Drvt(NODE* node)
         }
         if (node->data == 'l')
         {
-            if (Is_Num(node->right)) return Create_Node(NUM_DATA, 0, NULL, NULL);
-            
+            if (Is_Num(node->right)) return Rewrite_Node2Zero(node);
+
             node->data = '/';
-            node->left = New_Step_Drvt(Copy_Node(node->right));
-            
+            node->left = New_Step_Drvt(Copy_Node(right));
+            Destroy_Node(left);
             return node;
         }
         if (node->data == 's')
         {
-            if (Is_Num(node->right)) return Create_Node(NUM_DATA, 0, NULL, NULL);
-
+            if (Is_Num(node->right)) Rewrite_Node2Zero(node);
             node->data = '*';
-            NODE* left = node->left;
-            NODE* right = node->right;
-
             node->left = Create_Node(OP_DATA, 'c', left, right);
             node->right = New_Step_Drvt(Copy_Node(right));
             
@@ -95,22 +88,15 @@ static NODE* New_Step_Drvt(NODE* node)
         }
         if (node->data == 'c')
         {
-            if (Is_Num(node->right)) return Create_Node(NUM_DATA, 0, NULL, NULL);
+            if (Is_Num(node->right)) return Rewrite_Node2Zero(node);
             
             node->data = '*';
-
-            NODE* left = node->left;
-            NODE* right = node->right;
-
             node->left = Create_Node(NUM_DATA, -1, NULL, NULL);
             node->right = Create_Node(OP_DATA, '*', Create_Node(OP_DATA, 's', left, right), New_Step_Drvt(Copy_Node(right)));
             return node;
         }
         if (node->data == '^')
         {
-            NODE* left = node->left;
-            NODE* right = node->right;
-            
             if (Is_Num(left))
             {
                 // константа
@@ -125,9 +111,10 @@ static NODE* New_Step_Drvt(NODE* node)
                 }
                 else // показательная функция
                 {
-                    node->left = Create_Node(OP_DATA, '*', Create_Node(OP_DATA, 'l', Create_Node(NUM_DATA, 0, NULL, NULL), Create_Node(NUM_DATA, left->data, NULL, NULL)), Create_Node(node->type, node->data, left, right));
-                    node->right = New_Step_Drvt(Copy_Node(right));
+                    printf("I'mhere\n");
                     node->data = '*';
+                    node->left = Create_Node(OP_DATA, '*', Create_Node(OP_DATA, 'l', Create_Node(NUM_DATA, 0, NULL, NULL), Create_Node(NUM_DATA, left->data, NULL, NULL)), Create_Node(OP_DATA, '^', left, right));
+                    node->right = New_Step_Drvt(Copy_Node(right));
                 }
                 
             }
@@ -135,15 +122,15 @@ static NODE* New_Step_Drvt(NODE* node)
             {
                 node->data = '*';
                 int degree = Calculate_Tree(right);
-                node->right = Create_Node(OP_DATA, '*', Create_Node(OP_DATA, '^', left, Create_Node(NUM_DATA, degree - 1, NULL, NULL)), New_Step_Drvt(Copy_Node(left)));
                 node->left = Create_Node(NUM_DATA, degree, NULL, NULL);
-                
+                node->right = Create_Node(OP_DATA, '*', Create_Node(OP_DATA, '^', left, Create_Node(NUM_DATA, degree - 1, NULL, NULL)), New_Step_Drvt(Copy_Node(left)));
+                Destroy_Tree(right);
             }
             else if (!Is_Num(left) && !Is_Num(right)) // функция показательная с переменным основанием.
             {
+                node->data = '*';
                 node->left = Create_Node(node->type, node->data, left, right);
                 node->right = New_Step_Drvt(Create_Node(OP_DATA, '*', Create_Node(OP_DATA, 'l', Create_Node(NUM_DATA, 0, NULL, NULL), Copy_Node(left)), Copy_Node(node->right)));
-                node->data = '*';
             }
             
             return node;
@@ -161,7 +148,6 @@ void Calculate_Derivative(void)
 {
     NODE* head = Handle_Read_Request();
     Open_LaTEX_File();
-    //global_tree_head = head;
     Write_New_Line_To_LaTEX("\n\\[\n(", head, ")^{'} = ");
     Tree_Dump(_dump_start_fname, head);
     head = New_Step_Drvt(head);
@@ -177,6 +163,6 @@ void Calculate_Derivative(void)
     Write_New_Line_To_LaTEX("\n", head, "\n\\]\n");
     Write_Data2Base(head);
     Tree_Dump("build/dump_end.dot", head);
-    Close_LaTEX_File();
-    free(head);
+    //Close_LaTEX_File();
+    Destroy_Tree(head);
 }

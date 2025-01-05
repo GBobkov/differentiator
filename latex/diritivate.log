@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdftex 2024.12.18)  18 DEC 2024 20:27
+This is pdfTeX, Version 3.141592653-2.6-1.40.25 (TeX Live 2023/Debian) (preloaded format=pdftex 2024.12.18)  5 JAN 2025 01:21
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -17,8 +17,8 @@ l.4 \[
                 $
 <to be read again> 
                    ^
-l.5 (3*x+4)^
-            {'} =
+l.5 (2*x^
+         3)^{'} =
 ? 
 ! Undefined control sequence.
 l.7 \]
@@ -32,13 +32,22 @@ l.7 \]
 l.8 
     
 ? 
+! Interruption.
+<to be read again> 
+                   \par 
+l.8 
+    
+? 
 [1{/var/lib/texmf/fonts/map/pdftex/updmap/pdftex.map}] )</usr/share/texlive/tex
-mf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist
-/fonts/type1/public/amsfonts/cm/cmsy5.pfb>
-Output written on latex/diritivate.pdf (1 page, 20616 bytes).
+mf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texmf-dis
+t/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts
+/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/p
+ublic/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/
+amsfonts/cm/cmsy5.pfb>
+Output written on latex/diritivate.pdf (1 page, 42247 bytes).
 PDF statistics:
- 16 PDF objects out of 1000 (max. 8388607)
- 10 compressed objects within 1 object stream
+ 28 PDF objects out of 1000 (max. 8388607)
+ 19 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  1 words of extra memory for PDF output out of 10000 (max. 10000000)
 

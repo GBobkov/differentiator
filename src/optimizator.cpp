@@ -110,11 +110,11 @@ static bool One_div_optim(NODE* head)
     {
         Destroy_Tree(right);
 
-        head->type = head->left->type;
-        head->data = head->left->data;
+        head->type = left->type;
+        head->data = left->data;
 
-        head->right = head->left->right;
-        head->left = head->left->left;
+        head->right = left->right;
+        head->left = left->left;
 
         Destroy_Node(left);
         return true;
@@ -189,7 +189,7 @@ static bool Zero_One_deg_optim(NODE* head)
             head->left = NULL;
             return true;
         }
-        else if (head->right->data == 1)
+        else if (right->data == 1)
             {
                 Destroy_Tree(right);
 
@@ -211,17 +211,14 @@ static bool Zero_One_deg_optim(NODE* head)
 // Функция вычисляет значения операций с числами.
 static bool Nums_optim(NODE* head)
 {
-    // printf("DUMP!!-----------\nnode[%p]\n node->type=%d\nnode->left=%p\nnode->right=%p\n", head, head->type, head->left, head->right);
-    // {printf("YAAAAA UMER!!\n"); Tree_Dump("smotrim.dot", head);scanf("%c");*/}
     if (!head || head->type == NUM_DATA || head->type == VAR_DATA) return false;
     if (!Is_Num(head)) return false;
-    if (head->data == '+' || head->data == '-' || head->data == '*' ||head->data == '/') return false;
+    if (head->data == 'l' || head->data == 'c' || head->data != 's') return false;
     
     head->data = Calculate_Tree(head);
     head->type = NUM_DATA;
     head->left = NULL;
     head->right = NULL; 
-    //printf("newstep %s:%d(%s)\n", __FILE__, __LINE__, __FUNCTION__); Tree_Dump("smotrim.dot", head); scanf("%c");
     return true;
             
 }
@@ -233,36 +230,34 @@ void Optimization(NODE* head, int* changes)
 {
     if (!head) return;
 
-     //printf("newstep %s:%d(%s)\n", __FILE__, __LINE__, __FUNCTION__); Tree_Dump("smotrim.dot", head); scanf("%c");
     if (head->type == OP_DATA)
     {
-        //printf("newstep %s:%d(%s)\n", __FILE__, __LINE__, __FUNCTION__); Tree_Dump("smotrim.dot", head); scanf("%c");
-        if (Nums_optim(head)) {*changes += 1; /*printf("dumppnumber0"); Tree_Dump("smotrim.dot", global_tree_head);scanf("%c");*/}
+        if      (Nums_optim(head)) {*changes += 1;}
         else if (head->data == '*')
         {
-             //printf("newstep %s:%d(%s)\n", __FILE__, __LINE__, __FUNCTION__); Tree_Dump("smotrim.dot", head); scanf("%c");
-            if      (One_mul_optim    (head)) {*changes += 1;/*printf("dumppnumber1\n"); Tree_Dump("smotrim.dot", global_tree_head); scanf("%c");*/}
-            else if (Zero_mul_optim   (head)) {*changes += 1;/*printf("dumppnumber2\n"); Tree_Dump("smotrim.dot", global_tree_head);scanf("%c");*/}
-             //printf("newstep %s:%d(%s)\n", __FILE__, __LINE__, __FUNCTION__); Tree_Dump("smotrim.dot", head); scanf("%c");
+             
+            if      (One_mul_optim  (head)) {*changes += 1;}
+            else if (Zero_mul_optim (head)) {*changes += 1;}
+             
         }
         else if (head->data == '/')
         {
-             //printf("newstep %s:%d(%s)\n", __FILE__, __LINE__, __FUNCTION__); Tree_Dump("smotrim.dot", head); scanf("%c");
-            if      (Zero_div_optim (head)) {*changes += 1;/*printf("dumppnumber3\n"); Tree_Dump("smotrim.dot", global_tree_head);scanf("%c");*/}
-            else if (One_div_optim  (head))  {*changes += 1;/*printf("dumppnumber4\n"); Tree_Dump("smotrim.dot", global_tree_head);scanf("%c");*/}
-             //printf("newstep %s:%d(%s)\n", __FILE__, __LINE__, __FUNCTION__); Tree_Dump("smotrim.dot", head); scanf("%c");
+             
+            if      (Zero_div_optim (head)) {*changes += 1;}
+            else if (One_div_optim  (head))  {*changes += 1;}
+             
         }
         else if (head->data == '+' || head->data == '-')
         {   
-             //printf("newstep %s:%d(%s)\n", __FILE__, __LINE__, __FUNCTION__); Tree_Dump("smotrim.dot", head); scanf("%c");
-            if (Zero_sumsub_optim    (head)) {*changes += 1;/*printf("dumppnumber5\n"); Tree_Dump("smotrim.dot", global_tree_head);scanf("%c");*/}
-             //printf("newstep %s:%d(%s)\n", __FILE__, __LINE__, __FUNCTION__); Tree_Dump("smotrim.dot", head); scanf("%c");
+             
+            if (Zero_sumsub_optim    (head)) {*changes += 1;}
+             
         }
         else if (head->data == '^')
         {
-             //printf("newstep %s:%d(%s)\n", __FILE__, __LINE__, __FUNCTION__); Tree_Dump("smotrim.dot", head); scanf("%c");
-            if (Zero_One_deg_optim  (head)) {*changes += 1;/*printf("dumppnumber6\n"); Tree_Dump("smotrim.dot", global_tree_head);scanf("%c");*/}
-             //printf("newstep %s:%d(%s)\n", __FILE__, __LINE__, __FUNCTION__); Tree_Dump("smotrim.dot", head); scanf("%c");
+             
+            if (Zero_One_deg_optim  (head)) {*changes += 1;}
+             
         }
     }
     Optimization(head->right, changes);

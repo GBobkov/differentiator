@@ -143,50 +143,6 @@ static void Read_New_Node(FILE* file, NODE* node)
 }
 
 
-//  // проверяет наличие строки comparing в начале строки string.
-// static bool isbegin(const char* string, const char* comparing)
-// {
-//     int pointer = 0;
-//     while (comparing[pointer] != '\0')
-//     {
-//         if (string[pointer] != comparing[pointer])
-//             return false;
-//         pointer++;
-//     }
-//     return true;
-// }
-
-
-// struct FUNC_INFO
-// {
-//     int func; // код функции
-//     int len;
-// };
-
-// // создаёт структуру
-// static FUNC_INFO* Create_Func_Info(int func, int len)
-// {
-//     FUNC_INFO* info = (FUNC_INFO*) calloc(1, sizeof(FUNC_INFO));
-//     info->func = func;
-//     info->len = len;
-//     return info;
-// }
-
-// // проверяет является ли данная строка функцией. Возвращает струку информации о операции.
-// static FUNC_INFO* get_func_info(const char* operation)
-// {
-//     #define CODEGEN(oper) if (isbegin(operation, #oper)) return Create_Func_Info(oper##_OP, strlen(#oper))
-//     CODEGEN(LN);
-//     CODEGEN(COS);
-//     CODEGEN(SIN);
-//     CODEGEN(TAN);
-//     CODEGEN(COT);
-//     return Create_Func_Info(0, 0);
-//     #undef CODEGEN
-// }
-
-
-
 
 static char user_line_expression[100] = "3*x^(x^2+2)/l(s(x)+5)-1";
 static int user_line_pointer = 0;
@@ -246,7 +202,6 @@ static NODE* Get_Kernel()
         }
         else 
             {
-                
                 return Get_Number();
             }
     }
