@@ -3,10 +3,10 @@
 // Константы типа переменной.
 enum DATA_TYPE_CNST
 {
-    NONE_DATA    =0,
-    OP_DATA      =1,
-    NUM_DATA     =2,
-    VAR_DATA     =4
+    NONE_DATA    = 0,
+    OP_DATA      = 1,
+    NUM_DATA     = 2,
+    VAR_DATA     = 4
 };
 
 
@@ -24,16 +24,28 @@ struct NODE
 // операции
 enum OPERATIONS
 {
-    SUM_OP='+',
-    SUB_OP='-',
-    MUL_OP='*',
-    DIV_OP='/',
-    LN_OP=1,
-    COS_OP=2,
-    SIN_OP=3,
-    TAN_OP=4,
-    COT_OP=5
+    OP_LN  =  1,
+    OP_LOG =  2,
+    OP_COS =  3,
+    OP_SIN =  4,
+    OP_TAN =  5,
+    OP_COT =  6,
+    OP_SH  =  7, 
+    OP_CH  =  8, 
+    OP_TH  =  9,
+    OP_CTH =  10,
+    OP_SUM =  11,
+    OP_SUB =  12,
+    OP_MUL =  13,
+    OP_DIV =  14,
+    OP_DEG =  15
+
 };
 
+
+enum ERROR_FLAGS
+{
+    NONEXISTENT_VAL = 666 
+};
 
 #endif

@@ -2,11 +2,25 @@
 
 #include "read_write_files.h"
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <ctype.h>
 
 static const char *_latex_fname = "latex/diritivate.tex";
 static FILE* latex_ptr = NULL;
+
+
+static char *String2Lower(char* str)
+{
+    int ptr = 0;
+    while (str[ptr] != '\0')
+    {
+        str[ptr] = (char) tolower(str[ptr]);
+        ptr++;
+    }
+    return str;
+}
 
 
 // Рекурсивно записываем дерево
@@ -86,7 +100,8 @@ void Close_LaTEX_File()
     End_TexDump(latex_ptr);
     fclose(latex_ptr);
     char creat_cmd[BUFSIZ] = {};
-    sprintf(creat_cmd, "pdftex -output-directory=latex -enc -etex %s", _latex_fname);
+    // -enc -etex
+    sprintf(creat_cmd, "pdftex -output-directory=latex -interaction=nonstopmode %s > latex/message.txt", _latex_fname);
     system(creat_cmd);
 }
 
@@ -97,18 +112,35 @@ void Write_Data2LaTEX(NODE* head)
     assert(head);
 
     if (head->type == NUM_DATA)
-        fprintf(latex_ptr, "%d", head->data);
+    {
+        if (head->data < 0)
+            fprintf(latex_ptr, "(%d)", head->data);
+        else
+            fprintf(latex_ptr, "%d", head->data);
+    }
     else if (head->type == VAR_DATA)
         fprintf(latex_ptr, "%c", head->data);
     else if (head->type == OP_DATA)
     {
-        if (head->data == '+' || head->data == '-')
+        
+        #define CODEGEN(func)\
+        if (head->data == OP_##func)\
+        {\
+            char tmp_str[BUFSIZ] = {};\
+            strcpy(tmp_str, #func);\
+            fprintf(latex_ptr, "\\%s(", String2Lower(tmp_str));\
+            Write_Data2LaTEX(head->right);\
+            fprintf(latex_ptr, ")");\
+        }\
+        else
+        
+        if (head->data == OP_SUM || head->data == OP_SUB)
         {
             Write_Data2LaTEX(head->left);
-            fprintf(latex_ptr, "%c", head->data);
+            fprintf(latex_ptr, "%c", (head->data == OP_SUM)? '+': '-');
             Write_Data2LaTEX(head->right);
         }
-        else if (head->data == '/')
+        else if (head->data == OP_DIV)
         {
             fprintf(latex_ptr, "\\frac{");
             Write_Data2LaTEX(head->left);
@@ -116,10 +148,10 @@ void Write_Data2LaTEX(NODE* head)
             Write_Data2LaTEX(head->right);
             fprintf(latex_ptr, "}");
         }
-        else if (head->data == '*')
+        else if (head->data == OP_MUL)
         {
             bool isopenbrckt = false;
-            if (head->left->type == OP_DATA && (head->left->data == '+' || head->left->data == '-'))
+            if (head->left->type == OP_DATA && (head->left->data == OP_SUM || head->left->data == OP_SUB))
             {
                 isopenbrckt = true;
                 fprintf(latex_ptr, "(");
@@ -131,9 +163,9 @@ void Write_Data2LaTEX(NODE* head)
                 fprintf(latex_ptr, ")");
             }
 
-            fprintf(latex_ptr, "*");
+            fprintf(latex_ptr, "\\cdot");
 
-            if (head->right->type == OP_DATA && (head->right->data == '+' || head->right->data == '-'))
+            if (head->right->type == OP_DATA && (head->right->data == OP_SUM || head->right->data == OP_SUB))
             {
                 isopenbrckt = true;
                 fprintf(latex_ptr, "(");
@@ -145,10 +177,10 @@ void Write_Data2LaTEX(NODE* head)
                 fprintf(latex_ptr, ")");
             }
         }
-        else if (head->data == '^')
+        else if (head->data == OP_DEG)
         {
             bool isopenbrckt = false;
-            if (head->left->type == OP_DATA && (head->left->data == '+' || head->left->data == '-'))
+            if (head->left->type == OP_DATA && (head->left->data == OP_SUM || head->left->data == OP_SUB))
             {
                 isopenbrckt = true;
                 fprintf(latex_ptr, "(");
@@ -174,30 +206,15 @@ void Write_Data2LaTEX(NODE* head)
                 fprintf(latex_ptr, ")}");
             }
         }
-        else if (head->data == 's')
+        else 
+        #include "func_codegen.h"
+        // else
         {
-            fprintf(latex_ptr, "sin{(");
-            Write_Data2LaTEX(head->right);
-            fprintf(latex_ptr, ")}");
+            printf("Can't find function. head->data=%d\n", head->data);
+            printf("ERROR. %s:%d\n", __FILE__, __LINE__);
+            abort();
         }
-        else if (head->data == 'c')
-        {
-            fprintf(latex_ptr, "cos{(");
-            Write_Data2LaTEX(head->right);
-            fprintf(latex_ptr, ")}");
-        }
-        else if (head->data == 'l')
-        {
-            fprintf(latex_ptr, "ln{(");
-            Write_Data2LaTEX(head->right);
-            fprintf(latex_ptr, ")}");
-        }
-        else if (head->data == 't')
-        {
-            fprintf(latex_ptr, "tan{(");
-            Write_Data2LaTEX(head->right);
-            fprintf(latex_ptr, ")}");
-        }
+        #undef CODEGEN
     }
 }
 

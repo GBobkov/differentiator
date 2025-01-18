@@ -28,6 +28,26 @@ NODE* Copy_Node(NODE* node)
     return Create_Node(node->type, node->data, Copy_Node(node->left), Copy_Node(node->right));
 }
 
+// Создаёт фиктивный узел.
+NODE* Create_Num_Node(int number)
+{
+    return Create_Node(NUM_DATA, number, NULL, NULL);
+}
+
+
+// Переписывает данный узел в нуль (обычно нужно для вычисления производной).
+NODE* Rewrite_Node2Zero(NODE* node)
+{
+    node->type = NUM_DATA;
+    Destroy_Tree(node->left);
+    Destroy_Tree(node->right);
+    node->data = 0;
+    node->left = NULL;
+    node->right = NULL;
+    return node;
+}
+
+
 // удалить конкретный узел
 void Destroy_Node(NODE* node)
 {

@@ -1,0 +1,12 @@
+#ifdef CODEGEN
+    CODEGEN(LN)
+    CODEGEN(LOG)
+    CODEGEN(COS)
+    CODEGEN(SIN)
+    CODEGEN(TAN)
+    CODEGEN(COT)
+    CODEGEN(SH) 
+    CODEGEN(CH) 
+    CODEGEN(TH)
+    CODEGEN(CTH)
+#endif

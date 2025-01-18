@@ -31,12 +31,13 @@ static int pow(int num, int degree)
 // Вычислить значение операции.
 static int result_value(int operation, int ld, int rd)
 {
-    if (operation == '*') return ld * rd;
-    if (operation == '/') {if (rd == 0) {printf("ALARM DIV BY ZERO!\n");} return ld / rd;}
-    if (operation == '+') return ld + rd;
-    if (operation == '^') return pow(ld, rd);
+    if (operation == OP_MUL) return ld * rd;
+    if (operation == OP_DIV) {if (rd == 0) {printf("ALARM DIV BY ZERO!\n");} return ld / rd;}
+    if (operation == OP_SUM) return ld + rd;
+    if (operation == OP_SUB) return ld - rd;
+    if (operation == OP_DEG) return pow(ld, rd);
 
-    printf("ALARM! DANGEROUS SITUATION!\n");
+    printf("ALARM! DANGEROUS SITUATION! Idk what the operation=%d\n", operation);
     return 0;
 }
 
@@ -116,7 +117,7 @@ static bool One_div_optim(NODE* head)
         head->right = left->right;
         head->left = left->left;
 
-        Destroy_Node(left);
+        Destroy_Tree(left);
         return true;
     }    
     return false;
@@ -150,7 +151,8 @@ static bool One_mul_optim(NODE* head)
  
     NODE* left = head->left;
     NODE* right = head->right;
-    #define CODEGEN(side1, side2) if (side2->type == NUM_DATA && side2->data == 1)\
+    #define CODEGEN(side1, side2)\
+    if (side2->type == NUM_DATA && side2->data == 1)\
     {\
         Destroy_Tree(side2);\
         head->type = side1->type;\
@@ -183,8 +185,7 @@ static bool Zero_One_deg_optim(NODE* head)
             Destroy_Tree(left);
 
             head->type = NUM_DATA;
-            head->data = 1;
-            
+            head->data = 1;            
             head->right = NULL;
             head->left = NULL;
             return true;
@@ -213,53 +214,69 @@ static bool Nums_optim(NODE* head)
 {
     if (!head || head->type == NUM_DATA || head->type == VAR_DATA) return false;
     if (!Is_Num(head)) return false;
-    if (head->data == 'l' || head->data == 'c' || head->data != 's') return false;
+    if (head->data != OP_DIV && head->data != OP_SUM && head->data != OP_SUB && head->data != OP_MUL && head->data != OP_DEG) return false;
     
     head->data = Calculate_Tree(head);
     head->type = NUM_DATA;
+
+    Destroy_Tree(head->left);
+    Destroy_Tree(head->right);
     head->left = NULL;
     head->right = NULL; 
     return true;
             
 }
-
+  
 
 
 // функция оптимизирует граф (умножение на 0, 1 сложение/вычитание с 0).
-void Optimization(NODE* head, int* changes)
+void Optimization_Step(NODE* head, int* changes)
 {
     if (!head) return;
 
     if (head->type == OP_DATA)
     {
-        if      (Nums_optim(head)) {*changes += 1;}
-        else if (head->data == '*')
+        if          (Nums_optim(head))      {*changes += 1;}
+        else if     (head->data == OP_MUL)
         {
              
             if      (One_mul_optim  (head)) {*changes += 1;}
             else if (Zero_mul_optim (head)) {*changes += 1;}
              
         }
-        else if (head->data == '/')
+        else if (head->data == OP_DIV)
         {
              
             if      (Zero_div_optim (head)) {*changes += 1;}
             else if (One_div_optim  (head))  {*changes += 1;}
              
         }
-        else if (head->data == '+' || head->data == '-')
+        else if (head->data == OP_SUM || head->data == OP_SUB)
         {   
              
             if (Zero_sumsub_optim    (head)) {*changes += 1;}
              
         }
-        else if (head->data == '^')
+        else if (head->data == OP_DEG)
         {
              
             if (Zero_One_deg_optim  (head)) {*changes += 1;}
              
         }
     }
-    Optimization(head->right, changes);
-    Optimization(head->left, changes);
+    Optimization_Step(head->right, changes);
+    Optimization_Step(head->left, changes);
+}
+
+
+void Optimizator(NODE* head)
+{
+    int changes = 0;
+    do
+    {
+        changes = 0;
+        Optimization_Step(head, &changes);
+        //printf("newstep %s:%d(%s)\n", __FILE__, __LINE__, __FUNCTION__); Tree_Dump("smotrim.dot", head); scanf("%c");
+    } while (changes > 0);
+    
 }

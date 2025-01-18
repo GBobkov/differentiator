@@ -8,6 +8,27 @@
 #define CMD_SIZE 30
 
 
+
+#define CODEGEN(name)\
+if (op == OP_##name) return #name;
+static const char * What_Oper(NODE* node)
+{
+    if (node->type != OP_DATA)
+    {
+        printf("not op_data. %s:%d\n", __FILE__, __LINE__);
+        abort();
+    }
+    int op = node->data;
+    #include "func_codegen.h"
+    if (op == OP_SUM) return "+";
+    if (op == OP_SUB) return "-";
+    if (op == OP_MUL) return "*";
+    if (op == OP_DIV) return "/";
+    if (op == OP_DEG) return "^";
+    return "error";
+}
+#undef CODEGEN
+
 // инициализация узлов в dot-file
 static void Nodes_Init_2Dump(FILE* dump_file, NODE* node)
 {
@@ -15,10 +36,12 @@ static void Nodes_Init_2Dump(FILE* dump_file, NODE* node)
     assert(node != NULL);
 
     #define TITLE_COLOR "\"lightblue\""
-    if (node->type == OP_DATA || node->type == VAR_DATA)
+    if (node->type == VAR_DATA)
         fprintf (dump_file, "NODE_0x%p[label = \"%c\",  fillcolor = " TITLE_COLOR "];\n", node, node->data);
     else if (node->type == NUM_DATA)
         fprintf (dump_file, "NODE_0x%p[label = \"%d\",  fillcolor = " TITLE_COLOR "];\n", node, node->data);
+    else if (node->type == OP_DATA)
+        fprintf (dump_file, "NODE_0x%p[label = \"%s\",  fillcolor = " TITLE_COLOR "];\n", node, What_Oper(node));
     else
     {
         printf("Unpredictable node->type=%d\n", node->type);
