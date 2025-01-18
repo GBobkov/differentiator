@@ -1,146 +1,11 @@
 #include "read_data.h"
 
-#include "read_write_files.h"
 #include "tree_for_diff.h"
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
 #include <assert.h>
-
-
-#define BUFSIZE 64
-
-// Убирает \n в конце строки
-static void remove_newline(char *str) {
-    char *pos;
-    // Находим символ новой строки в строке
-    if ((pos = strchr(str, '\n')) != NULL) {
-        *pos = '\0'; // Заменяем символ новой строки на окончание строки
-    }
-}
-
-
-// Считать новую строку с консоли
-static void Get_New_Line(FILE* file, char *answer)
-{   
-    
-    fgets(answer, BUFSIZE, file);
-    remove_newline(answer);
-}
-
-
-// Строка - число ?
-static bool Isnum(const char *str)
-{
-    while (*str != '\0')
-    {
-        if (str[0] < '0' || str[0] > '9') return false;
-        str++;
-    }
-    return true;
-}
-
-
-// Строка - знак операции ?
-static bool Isop(const char *str)
-{
-    if (*(str + 1) != '\0') return false;
-
-    switch (*str)
-    {
-    case '+':
-    case '-':
-    case '*':
-    case '/':
-    case '^':
-    case 'l':
-    case 'c':
-    case 's': 
-        return true;
-    
-    default:
-        return false;
-    }
-}
-
-// Строка - имя переменной ?
-static bool Isvar(const char *str)
-{
-    if (*(str + 1) != '\0') return false;
-    return isalpha(*str);
-}
-
-// Обработает новую строку и запишет в ноду тип и data.
-static void Handle_New_Line(FILE* file, NODE* node)
-{
-    assert(node);
-    
-    char line[BUFSIZE] = {};
-    
-    Get_New_Line(file, line);
-    
-    // TODO: Возмжно кодген или массив функций
-    if (Isnum(line))
-    {
-        node->type = NUM_DATA;
-        node->data = atoi(line);
-    }
-    else if (Isop(line))
-    {
-        node->type = OP_DATA;
-        node->data = line[0];
-    }
-    else if (Isvar(line))
-    {
-        node->type = VAR_DATA;
-        node->data = line[0];
-    }
-    else if (line[0] == '\0')
-    {
-        node->type = NONE_DATA;
-        node->data = '\0';
-    }
-    else
-    {
-        printf("Unpredictable data!\ndata=\"%s\"\n", line);
-        abort();
-    }
-    
-}
-
-// Считать очередной узел из файла
-static void Read_New_Node(FILE* file, NODE* node)
-{
-     
-    Handle_New_Line(file, node);
-    int bracket = '\0';
-    bracket = fgetc(file); // Достаём скобку.
-    fgetc(file);    // Достаём \n.
-    
-    if (bracket == '{')
-    {
-        NODE* right_son = Create_Node(NONE_DATA, 0, NULL, NULL);
-        node->right = right_son;
-        Read_New_Node(file, right_son);
-    }
-    
-    if (bracket == '{')
-    {
-        bracket = fgetc(file);  // Достаём скобку.
-        fgetc(file); // Достаём \n.
-    }
-    
-    if (bracket == '{')
-    {
-        NODE* left_son = Create_Node(NONE_DATA, 0, NULL, NULL);
-        node->left = left_son;
-        Read_New_Node(file, left_son);
-        fgetc(file);    // Достаём скобку ('}').
-        fgetc(file);    // Достаём \n.
-    }
-
-}
 
 
 
@@ -327,26 +192,6 @@ static NODE* Get_Expression_Tree()
 }
 
 
-// Считать данные с файла и создать дерево.
-static NODE* Read_Data(void)
-{
-    FILE* file = fopen(database_file_name, "r");
-
-    NODE* node = Create_Node(NONE_DATA, '\0', NULL, NULL);
-    assert(node != NULL);
-    assert(file != NULL);
-    
-    fgetc(file);    // Убираем первую '{'
-    fgetc(file);
-
-    Read_New_Node(file, node);
-    
-    fclose(file);
-
-    return node;
-}
-
-
 // работа с пользователем (читать из базы данных или из ввода)
 NODE* Handle_Read_Request(void)
 {
@@ -356,10 +201,10 @@ NODE* Handle_Read_Request(void)
     while (answer[0] != '1' && answer[0] != '2')
     {
         printf("Input:");
-        scanf("%c", answer);
+        scanf("%s", answer);
         getchar(); // Достать '\n'
     }
-    if (answer[0] == '1') return Read_Data();
+    if (answer[0] == '1') return NULL;
     else 
     {
         printf("Enter expression:");

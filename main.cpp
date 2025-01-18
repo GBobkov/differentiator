@@ -16,11 +16,11 @@ int main()
 {
     NODE* head = Handle_Read_Request();
     Open_LaTEX_File();
-    Write_New_Line_To_LaTEX("\n\\[\n(", head, ")^{'} = ");
+    Write_New_Line_To_LaTEX("\n(", head, ")^{'} = ");
     Tree_Dump(_dump_start_fname, head);
     head = Calculate_Derivative(head);
     Tree_Dump(_dump_enddotfname, head);
-    Write_New_Line_To_LaTEX("\n", head, "\n\\]\n");
+    Write_New_Line_To_LaTEX("\n", head, "\n\n");
     Close_LaTEX_File();
     Destroy_Tree(head);
     printf("That's all!\n");

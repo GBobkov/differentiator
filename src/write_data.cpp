@@ -1,6 +1,5 @@
 #include "write_data.h"
 
-#include "read_write_files.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -38,16 +37,7 @@ static void Write_New_Node(FILE* file, NODE* node)
     if (node->left) Write_New_Node(file, node->left);
     fprintf(file, "}\n");
 }   
-// Сохранить данные в базу данных
-int Write_Data2Base(NODE* node)
-{
-    assert(node);
 
-    FILE* file = fopen(database_file_name, "w");
-    Write_New_Node(file, node);
-    fclose(file);
-    return 0;
-}
 
 // начало файла
 static int Begin_TexDump(FILE* tex_dump)
@@ -58,15 +48,18 @@ static int Begin_TexDump(FILE* tex_dump)
         printf("No such file\n");
         return FILE_NOT_OPEN;
     }
-
-    // fprintf(tex_dump, "\\documentclass{article}\n");
-    // fprintf(tex_dump, "\\usepackage{ucs}\n");
-    // fprintf(tex_dump, "\\usepackage[utf8x]{inputenc}\n");
-    // fprintf(tex_dump, "\\usepackage[russian]{babel}\n");
-    // fprintf(tex_dump, "\\usepackage{amsmath}\n");
+    fprintf(tex_dump, "\\documentclass{article}\n");
+    fprintf(tex_dump, "\\usepackage{ucs}\n");
+    fprintf(tex_dump, "\\usepackage[utf8x]{inputenc}\n");
+    fprintf(tex_dump, "\\usepackage[russian]{babel}\n");
+    fprintf(tex_dump, "\\usepackage{microtype}\n");
+    fprintf(tex_dump, "\\usepackage{amsmath}\n");
+    fprintf(tex_dump, "\\usepackage{ragged2e}\n");
+    fprintf(tex_dump, "\\usepackage[l2tabu,orthodox]{nag}\n");
+    fprintf(tex_dump, "\\usepackage[a4paper, left= 25mm, right=25mm, top=2cm, bottom=2cm]{geometry}\n\n");
 
     fprintf(tex_dump, "\\begin{document}\n\n");
-
+    fprintf(tex_dump, "\\begin{*equation}\n");
     return NO_ERROR;
 }
 
@@ -79,6 +72,7 @@ static int End_TexDump(FILE* tex_dump)
         return FILE_NOT_OPEN;
     }
 
+    fprintf(tex_dump, "\\end{*equation}\n");
     fprintf(tex_dump, "\n\\end{document}\n");
 
     return NO_ERROR;
@@ -101,7 +95,7 @@ void Close_LaTEX_File()
     fclose(latex_ptr);
     char creat_cmd[BUFSIZ] = {};
     // -enc -etex
-    sprintf(creat_cmd, "pdftex -output-directory=latex -interaction=nonstopmode %s > latex/message.txt", _latex_fname);
+    sprintf(creat_cmd, "xelatex -output-directory=latex -interaction=nonstopmode %s > latex/message.txt", _latex_fname);
     system(creat_cmd);
 }
 
@@ -163,7 +157,7 @@ void Write_Data2LaTEX(NODE* head)
                 fprintf(latex_ptr, ")");
             }
 
-            fprintf(latex_ptr, "\\cdot");
+            fprintf(latex_ptr, " \\cdot ");
 
             if (head->right->type == OP_DATA && (head->right->data == OP_SUM || head->right->data == OP_SUB))
             {
