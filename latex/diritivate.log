@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2025.1.18)  18 JAN 2025 15:52
+This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2025.1.18)  19 JAN 2025 04:30
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -336,7 +336,7 @@ or  <return>  to continue without it.
 <inserted text> 
                 $
 l.15 (\sin
-          (x+2) \cdot \ln(x+2) \cdot \frac{\tan(x+2)}{x^{(x^x)}-14 \cdot \lo...
+          (x+2)-4 \cdot 3)^{'} = \cos(x+2)
 I've inserted a begin-math/end-math symbol since I think
 you left one out. Proceed, with fingers crossed.
 
@@ -344,14 +344,6 @@ you left one out. Proceed, with fingers crossed.
 File: mt-cmr.cfg 2013/05/19 v2.2 microtype config. file: Computer Modern Roman 
 (RS)
 )
-! Missing $ inserted.
-<inserted text> 
-                $
-l.17 
-     
-I've inserted a begin-math/end-math symbol since I think
-you left one out. Proceed, with fingers crossed.
-
 
 ! LaTeX Error: \begin{document} ended by \end{*equation}.
 
@@ -359,11 +351,22 @@ See the LaTeX manual or LaTeX Companion for explanation.
 Type  H <return>  for immediate help.
  ...                                              
                                                   
-l.18 \end{*equation}
+l.16 \end{*equation}
                     
 Your command was ignored.
 Type  I <command> <return>  to replace it with another command,
 or  <return>  to continue without it.
+
+! Missing $ inserted.
+<inserted text> 
+                $
+l.16 \end{*equation}
+                    
+I've inserted something that you may have forgotten.
+(See the <inserted text> above.)
+With luck, this will get me unwedged. But if you
+really didn't forget anything, try typing `2' now; then
+my insertion and my current dilemma will both disappear.
 
 No complaints by nag.
 [1
@@ -377,7 +380,7 @@ L3 programming layer <2024-01-22>
 Here is how much of TeX's memory you used:
  5292 strings out of 476878
  89558 string characters out of 5805249
- 1918627 words of memory out of 5000000
+ 1916627 words of memory out of 5000000
  27193 multiletter control sequences out of 15000+600000
  558531 words of font info for 39 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191

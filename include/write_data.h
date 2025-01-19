@@ -12,8 +12,6 @@ void Close_LaTEX_File();
 // запись итоговой производной в латех
 void Write_Data2LaTEX(NODE* head);
 
-// Сохранить данные в базу данных
-int Write_Data2Base(NODE* node);
 
 // Добавляет ещё строчку в латех.
 void Write_New_Line_To_LaTEX(const char* phrase_beg, NODE* head, const char* phrase_end);

@@ -11,6 +11,8 @@
 
 #define CODEGEN(name)\
 if (op == OP_##name) return #name;
+
+// Функция возвращает char операцию.
 static const char * What_Oper(NODE* node)
 {
     if (node->type != OP_DATA)

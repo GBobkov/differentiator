@@ -36,7 +36,7 @@ static void Write_New_Node(FILE* file, NODE* node)
     if (node->right) Write_New_Node(file, node->right);
     if (node->left) Write_New_Node(file, node->left);
     fprintf(file, "}\n");
-}   
+}
 
 
 // начало файла
@@ -44,7 +44,8 @@ static int Begin_TexDump(FILE* tex_dump)
 {
     assert(tex_dump);
 
-    if (tex_dump == NULL){
+    if (tex_dump == NULL)
+    {
         printf("No such file\n");
         return FILE_NOT_OPEN;
     }
@@ -79,8 +80,6 @@ static int End_TexDump(FILE* tex_dump)
 }
 
 
-
-
 // Открывает латеховский файл.
 void Open_LaTEX_File()
 {
@@ -88,13 +87,13 @@ void Open_LaTEX_File()
     Begin_TexDump(latex_ptr);
 }
 
+
 // Закрывает латеховский файл.
 void Close_LaTEX_File()
 {
     End_TexDump(latex_ptr);
     fclose(latex_ptr);
     char creat_cmd[BUFSIZ] = {};
-    // -enc -etex
     sprintf(creat_cmd, "xelatex -output-directory=latex -interaction=nonstopmode %s > latex/message.txt", _latex_fname);
     system(creat_cmd);
 }
@@ -219,9 +218,8 @@ void Write_New_Line_To_LaTEX(const char* phrase_beg, NODE* head, const char* phr
 {
     assert(phrase_beg);
     assert(phrase_end);
-    assert(head);
 
     fprintf(latex_ptr, "%s", phrase_beg);
-    Write_Data2LaTEX(head);
+    if (head) Write_Data2LaTEX(head);
     fprintf(latex_ptr, "%s", phrase_end);
 }

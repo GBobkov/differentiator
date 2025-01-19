@@ -3,7 +3,6 @@
 
 #include "constants.h"
 
-
 // Функция вычисляет произвоную.
 NODE* Calculate_Derivative(NODE* head);
 

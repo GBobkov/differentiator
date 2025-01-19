@@ -9,8 +9,13 @@
 
 
 
-static char user_line_expression[100] = "3*x^(x^2+2)/l(s(x)+5)-1";
+static char user_line_expression[100] = "3*x^(x^2+2)/ln(sin(x)+5)-1";
 static int user_line_pointer = 0;
+
+static void Skip_Space()
+{
+    while (user_line_expression[user_line_pointer] == ' ') user_line_pointer += 1;
+}
 
 
 static void SyntaxErr(int pos, const char* message)
@@ -31,12 +36,14 @@ NODE* Get_Sumsub(); // определяю для того, чтобы зацик
 // Обработать число.
 static NODE* Get_Number()
 {
+    Skip_Space();
     int val = 0;
     int oldp = user_line_pointer;
     while (user_line_expression[user_line_pointer] >= '0' && user_line_expression[user_line_pointer] <= '9')
     {
         val = val * 10 + user_line_expression[user_line_pointer] - '0';
         user_line_pointer++;
+        Skip_Space();
     }
     
     if (user_line_pointer == oldp)
@@ -48,6 +55,7 @@ static NODE* Get_Number()
 // Обработать "ядро" - выражение в скобках, или переменная, или число.
 static NODE* Get_Kernel()
 {
+    Skip_Space();
     if (user_line_expression[user_line_pointer] == '(')
     {
         user_line_pointer++;
@@ -112,6 +120,7 @@ static NODE* Get_Log_Base()
 // обработать функцию.
 static NODE* Get_Func()
 {
+    Skip_Space();
     int opfunc_data = Find_Func();
     if (opfunc_data != NONEXISTENT_VAL)
     {
@@ -129,9 +138,9 @@ static NODE* Get_Func()
 // обработать возведение в степень.
 static NODE* Get_Degree()
 {
-   
     NODE* op_tree = NULL;
     NODE* left_tree = Get_Func();
+    Skip_Space();
     if (user_line_expression[user_line_pointer] == '^')
     {
         user_line_pointer++;
@@ -149,6 +158,7 @@ static NODE* Get_Muldiv()
    
     NODE* op_tree = NULL;
     NODE* left_tree = Get_Degree();
+    Skip_Space();
     if (user_line_expression[user_line_pointer] == '*' || user_line_expression[user_line_pointer] == '/')
         {
             char sign = (user_line_expression[user_line_pointer] == '*')? OP_MUL: OP_DIV;
@@ -166,7 +176,7 @@ NODE* Get_Sumsub()
     
     NODE* op_tree = NULL;
     NODE* left_tree = Get_Muldiv();
-    
+    Skip_Space();
     if (user_line_expression[user_line_pointer] == '+' || user_line_expression[user_line_pointer] == '-')
     {
         char sign = (user_line_expression[user_line_pointer] == '+')? OP_SUM: OP_SUB;
@@ -201,14 +211,14 @@ NODE* Handle_Read_Request(void)
     while (answer[0] != '1' && answer[0] != '2')
     {
         printf("Input:");
-        scanf("%s", answer);
+        scanf("%[^\n]", answer);
         getchar(); // Достать '\n'
     }
     if (answer[0] == '1') return NULL;
     else 
     {
         printf("Enter expression:");
-        scanf("%s", user_line_expression);
+        scanf("%[^\n]", user_line_expression);
         return Get_Expression_Tree();
     }
 }

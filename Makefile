@@ -7,7 +7,7 @@ CFLAGS ?= -D _DEBUG -ggdb3 -std=c++17 -O0 -Wall -Wextra -Weffc++ -Waggressive-lo
 
 OUT_O_DIR := build
 
-CSRC = main.cpp src/optimizator.cpp src/tree_for_diff.cpp src/diffor.cpp src/tree_dump.cpp src/read_data.cpp src/write_data.cpp
+CSRC = main.cpp src/optimizator.cpp src/tree_for_diff.cpp src/diffor.cpp src/tree_dump.cpp src/read_data.cpp src/write_data.cpp src/tex_lines.cpp
 override CFLAGS += $(COMMONINC)
 
 COBJ := $(addprefix $(OUT_O_DIR)/, $(CSRC:%.cpp=%.o)) 

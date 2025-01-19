@@ -12,11 +12,9 @@
 static const char *_dump_nonoptim_dirt_fname = "build/dump_diritive.dot";
 
 
-
 // Рекурсивная функция вычисления производной. Возвращает указатель на начальный узел. Также меняет подаваемый аргумент.
 static NODE* New_Step_Drvt(NODE* node)
 {
-
     if (node->type == NUM_DATA)
     {
         node->data = 0;
@@ -32,11 +30,11 @@ static NODE* New_Step_Drvt(NODE* node)
     {   
         NODE* left = node->left;
         NODE* right = node->right;
+        
         if (node->data == OP_SUM || node->data == OP_SUB)
         {
             node->left = New_Step_Drvt(left);
             node->right = New_Step_Drvt(right);
-            
             return node;
         }
         if (node->data == OP_MUL)
@@ -129,7 +127,6 @@ static NODE* New_Step_Drvt(NODE* node)
                 }
                 else // показательная функция
                 {
-                    printf("I'mhere\n");
                     node->data = OP_MUL;
                     node->left = Create_Node(OP_DATA, OP_MUL, Create_Node(OP_DATA, OP_LN, Create_Node(NUM_DATA, 0, NULL, NULL), Create_Node(NUM_DATA, left->data, NULL, NULL)), Create_Node(OP_DATA, OP_DEG, left, right));
                     node->right = New_Step_Drvt(Copy_Node(right));
@@ -154,6 +151,7 @@ static NODE* New_Step_Drvt(NODE* node)
             return node;
         }
     }
+    
     return NULL;
 }
 
@@ -162,7 +160,7 @@ static NODE* New_Step_Drvt(NODE* node)
 NODE* Calculate_Derivative(NODE* head)
 {
     head = New_Step_Drvt(head);
-    Tree_Dump(_dump_nonoptim_dirt_fname, head);
+    //Tree_Dump(_dump_nonoptim_dirt_fname, head);
     Optimizator(head);
 
     return head;
