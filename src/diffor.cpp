@@ -20,13 +20,13 @@ static NODE* New_Step_Drvt(NODE* node)
         node->data = 0;
         return node;
     }
-    if (node->type == VAR_DATA)
+    else if (node->type == VAR_DATA)
     {
         node->type = NUM_DATA;
         node->data = 1;
         return node;
     }
-    if (node->type == OP_DATA)
+    else if (node->type == OP_DATA)
     {   
         NODE* left = node->left;
         NODE* right = node->right;
@@ -35,23 +35,23 @@ static NODE* New_Step_Drvt(NODE* node)
         {
             node->left = New_Step_Drvt(left);
             node->right = New_Step_Drvt(right);
-            return node;
+
         }
-        if (node->data == OP_MUL)
+        else if (node->data == OP_MUL)
         {   
             node->left = Create_Node(OP_DATA, OP_MUL, New_Step_Drvt(Copy_Node(left)), right);
             node->right = Create_Node(OP_DATA, OP_MUL, left, New_Step_Drvt(Copy_Node(right)));
             node->data = OP_SUM;
-            return node;
+
         }
-        if (node->data == OP_DIV)
+        else if (node->data == OP_DIV)
         {
             node->left = Create_Node(OP_DATA, OP_SUB, Create_Node(OP_DATA, OP_MUL, New_Step_Drvt(Copy_Node(left)), right), Create_Node(OP_DATA, OP_MUL, left, New_Step_Drvt(Copy_Node(right))));
             node->right = Create_Node(OP_DATA, OP_DEG, Copy_Node(right), Create_Num_Node(2));
             node->data = OP_DIV;
-            return node;
+
         }
-        if (node->data == OP_LN || node->data == OP_LOG)
+        else if (node->data == OP_LN || node->data == OP_LOG)
         {
             if (Is_Num(node->right)) return Rewrite_Node2Zero(node);
 
@@ -67,9 +67,9 @@ static NODE* New_Step_Drvt(NODE* node)
                 Destroy_Tree(left);
 
             node->data = OP_DIV;
-            return node;
+
         }
-        if (node->data == OP_SIN || node->data == OP_SH || node->data == OP_CH)
+        else if (node->data == OP_SIN || node->data == OP_SH || node->data == OP_CH)
         {
             if (Is_Num(node->right)) Rewrite_Node2Zero(node);
 
@@ -81,37 +81,36 @@ static NODE* New_Step_Drvt(NODE* node)
             node->left = Create_Node(OP_DATA, diff_op, left, right);
             node->right = New_Step_Drvt(Copy_Node(right));
             node->data = OP_MUL;            
-            return node;
+
         }
-        if (node->data == OP_COS)
+        else if (node->data == OP_COS)
         {
             if (Is_Num(node->right)) return Rewrite_Node2Zero(node);
         
             node->left = Create_Num_Node(-1);
             node->right = Create_Node(OP_DATA, OP_MUL, Create_Node(OP_DATA, OP_SIN, left, right), New_Step_Drvt(Copy_Node(right)));
             node->data = OP_MUL;
-            return node;
+
         }
-        if (node->data == OP_TAN || node->data == OP_TH)
+        else if (node->data == OP_TAN || node->data == OP_TH)
         {
             if (Is_Num(node->right)) return Rewrite_Node2Zero(node);
 
             node->left = New_Step_Drvt(Copy_Node(right));
             node->right = Create_Node(OP_DATA, OP_DEG, Create_Node(OP_DATA, (node->data == OP_TAN)? OP_COS: OP_CH, left, right), Create_Num_Node(2));
             node->data = OP_DIV;    
-            return node;
+
         }
-        if (node->data == OP_COT || node->data == OP_CTH)
+        else if (node->data == OP_COT || node->data == OP_CTH)
         {
             if (Is_Num(node->right)) return Rewrite_Node2Zero(node);
             
             node->left = Create_Node(OP_DATA, OP_MUL, Create_Num_Node(-1), New_Step_Drvt(Copy_Node(right)));
             node->right = Create_Node(OP_DATA, OP_DEG, Create_Node(OP_DATA, (node->data == OP_COT)? OP_SIN: OP_SH, left, right), Create_Num_Node(2));
             node->data = OP_DIV;
-            return node;
-        }
 
-        if (node->data == OP_DEG)
+        }
+        else if (node->data == OP_DEG)
         {
             if (Is_Num(left))
             {
@@ -147,12 +146,10 @@ static NODE* New_Step_Drvt(NODE* node)
                 node->left = Create_Node(node->type, node->data, left, right);
                 node->right = New_Step_Drvt(Create_Node(OP_DATA, OP_MUL, Create_Node(OP_DATA, OP_LN, Create_Node(NUM_DATA, 0, NULL, NULL), Copy_Node(left)), Copy_Node(node->right)));
             }
-            
-            return node;
         }
     }
-    
-    return NULL;
+
+    return node;
 }
 
 
