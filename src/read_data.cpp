@@ -80,7 +80,6 @@ static NODE* Get_Kernel()
 }
  
 
-
 // Проверка на подстроку "name" в user_line_expression, возвращает код функции если нашлась, иначе NONEXISTENT_VAL.
 #define CODEGEN(name)\
 {\
@@ -99,7 +98,8 @@ static NODE* Get_Kernel()
     }\
 }
 
-// Поиск всевозможных функций в подстроке. Возвращает код функции если нашлась, иначе NONEXISTENT_VAL.
+
+// Поиск функций в подстроке. Возвращает код функции если нашлась, иначе NONEXISTENT_VAL.
 static int Find_Func()
 {
     #include "func_codegen.h"

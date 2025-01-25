@@ -9,7 +9,7 @@
 #include <assert.h>
 
 
-static const char *_dump_nonoptim_dirt_fname = "build/dump_diritive.dot";
+//static const char *_dump_nonoptim_dirt_fname = "build/dump_diritive.dot";
 
 
 // Рекурсивная функция вычисления производной. Возвращает указатель на начальный узел. Также меняет подаваемый аргумент.
@@ -69,13 +69,13 @@ static NODE* New_Step_Drvt(NODE* node)
             node->data = OP_DIV;
 
         }
-        else if (node->data == OP_SIN || node->data == OP_SH || node->data == OP_CH)
+        else if (node->data == OP_SIN || node->data == OP_SINH || node->data == OP_COSH)
         {
             if (Is_Num(node->right)) Rewrite_Node2Zero(node);
 
             int diff_op = NONEXISTENT_VAL;
             if (node->data == OP_SIN) diff_op = OP_COS;
-            else if (node->data == OP_SH) diff_op = OP_CH;
+            else if (node->data == OP_SINH) diff_op = OP_COSH;
             else diff_op = node->data;
 
             node->left = Create_Node(OP_DATA, diff_op, left, right);
@@ -92,21 +92,21 @@ static NODE* New_Step_Drvt(NODE* node)
             node->data = OP_MUL;
 
         }
-        else if (node->data == OP_TAN || node->data == OP_TH)
+        else if (node->data == OP_TAN || node->data == OP_TANH)
         {
             if (Is_Num(node->right)) return Rewrite_Node2Zero(node);
 
             node->left = New_Step_Drvt(Copy_Node(right));
-            node->right = Create_Node(OP_DATA, OP_DEG, Create_Node(OP_DATA, (node->data == OP_TAN)? OP_COS: OP_CH, left, right), Create_Num_Node(2));
+            node->right = Create_Node(OP_DATA, OP_DEG, Create_Node(OP_DATA, (node->data == OP_TAN)? OP_COS: OP_COSH, left, right), Create_Num_Node(2));
             node->data = OP_DIV;    
 
         }
-        else if (node->data == OP_COT || node->data == OP_CTH)
+        else if (node->data == OP_COT || node->data == OP_COTH)
         {
             if (Is_Num(node->right)) return Rewrite_Node2Zero(node);
             
             node->left = Create_Node(OP_DATA, OP_MUL, Create_Num_Node(-1), New_Step_Drvt(Copy_Node(right)));
-            node->right = Create_Node(OP_DATA, OP_DEG, Create_Node(OP_DATA, (node->data == OP_COT)? OP_SIN: OP_SH, left, right), Create_Num_Node(2));
+            node->right = Create_Node(OP_DATA, OP_DEG, Create_Node(OP_DATA, (node->data == OP_COT)? OP_SIN: OP_SINH, left, right), Create_Num_Node(2));
             node->data = OP_DIV;
 
         }
