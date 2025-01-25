@@ -9,7 +9,7 @@
 #include <assert.h>
 
 
-//static const char *_dump_nonoptim_dirt_fname = "build/dump_diritive.dot";
+static const char *_dump_nonoptim_dirt_fname = "build/dump_diritive.dot";
 
 
 // Рекурсивная функция вычисления производной. Возвращает указатель на начальный узел. Также меняет подаваемый аргумент.
@@ -126,25 +126,25 @@ static NODE* New_Step_Drvt(NODE* node)
                 }
                 else // показательная функция
                 {
-                    node->data = OP_MUL;
                     node->left = Create_Node(OP_DATA, OP_MUL, Create_Node(OP_DATA, OP_LN, Create_Node(NUM_DATA, 0, NULL, NULL), Create_Node(NUM_DATA, left->data, NULL, NULL)), Create_Node(OP_DATA, OP_DEG, left, right));
                     node->right = New_Step_Drvt(Copy_Node(right));
+                    node->data = OP_MUL;
                 }
                 
             }
             else if (!Is_Num(left) && Is_Num(right)) // степенная функция
             {
-                node->data = OP_MUL;
                 int degree = Calculate_Tree(right);
                 node->left = Create_Node(NUM_DATA, degree, NULL, NULL);
                 node->right = Create_Node(OP_DATA, OP_MUL, Create_Node(OP_DATA, OP_DEG, left, Create_Node(NUM_DATA, degree - 1, NULL, NULL)), New_Step_Drvt(Copy_Node(left)));
+                node->data = OP_MUL;
                 Destroy_Tree(right);
             }
             else if (!Is_Num(left) && !Is_Num(right)) // функция показательная с переменным основанием.
             {
-                node->data = OP_MUL;
                 node->left = Create_Node(node->type, node->data, left, right);
                 node->right = New_Step_Drvt(Create_Node(OP_DATA, OP_MUL, Create_Node(OP_DATA, OP_LN, Create_Node(NUM_DATA, 0, NULL, NULL), Copy_Node(left)), Copy_Node(node->right)));
+                node->data = OP_MUL;
             }
         }
     }
@@ -157,7 +157,7 @@ static NODE* New_Step_Drvt(NODE* node)
 NODE* Calculate_Derivative(NODE* head)
 {
     head = New_Step_Drvt(head);
-    //Tree_Dump(_dump_nonoptim_dirt_fname, head);
+    Tree_Dump(_dump_nonoptim_dirt_fname, head);
     Optimizator(head);
 
     return head;

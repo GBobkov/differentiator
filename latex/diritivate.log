@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2025.1.18)  25 JAN 2025 18:12
+This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2025.1.18)  25 JAN 2025 18:20
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -336,7 +336,7 @@ or  <return>  to continue without it.
 <inserted text> 
                 $
 l.15 (\sinh
-           (x+23^x)^x)^{'} = \sinh(x+23^x) \cdot x \cdot (\frac{\cosh(x+23^x...
+           (x+2^x)^x)^{'} = \sinh(x+2^x)^x \cdot (\frac{\cosh(x+2^x) \cdot (...
 I've inserted a begin-math/end-math symbol since I think
 you left one out. Proceed, with fingers crossed.
 
