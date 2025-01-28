@@ -6,9 +6,11 @@
 #include <assert.h>
 #include <ctype.h>
 
+
 static const char *_latex_fname = "latex/diritivate.tex";
 static FILE* latex_ptr = NULL;
-
+static bool flag_isopentex = false;
+static bool flag_isclosetex = true;
 
 static char *String2Lower(char* str)
 {
@@ -49,18 +51,17 @@ static int Begin_TexDump(FILE* tex_dump)
         printf("No such file\n");
         return FILE_NOT_OPEN;
     }
-    fprintf(tex_dump, "\\documentclass{article}\n");
-    fprintf(tex_dump, "\\usepackage{ucs}\n");
-    fprintf(tex_dump, "\\usepackage[utf8x]{inputenc}\n");
-    fprintf(tex_dump, "\\usepackage[russian]{babel}\n");
-    fprintf(tex_dump, "\\usepackage{microtype}\n");
-    fprintf(tex_dump, "\\usepackage{amsmath}\n");
-    fprintf(tex_dump, "\\usepackage{ragged2e}\n");
-    fprintf(tex_dump, "\\usepackage[l2tabu,orthodox]{nag}\n");
-    fprintf(tex_dump, "\\usepackage[a4paper, left= 25mm, right=25mm, top=2cm, bottom=2cm]{geometry}\n\n");
-
-    fprintf(tex_dump, "\\begin{document}\n\n");
-    fprintf(tex_dump, "\\begin{*equation}\n");
+    fprintf(tex_dump, "\\documentclass{article}\n"
+    "\\usepackage{ucs}\n"
+    "\\usepackage[utf8x]{inputenc}\n"
+    "\\usepackage[russian]{babel}\n"
+    "\\usepackage{microtype}\n"
+    "\\usepackage{amsmath}\n"
+    "\\usepackage{ragged2e}\n"
+    "\\usepackage[l2tabu,orthodox]{nag}\n"
+    "\\usepackage[a4paper, left= 25mm, right=25mm, top=2cm, bottom=2cm]{geometry}\n\n"
+    "\\begin{document}\n\n"
+    "\\begin{*equation}\n");
     return NO_ERROR;
 }
 
@@ -73,8 +74,7 @@ static int End_TexDump(FILE* tex_dump)
         return FILE_NOT_OPEN;
     }
 
-    fprintf(tex_dump, "\\end{*equation}\n");
-    fprintf(tex_dump, "\n\\end{document}\n");
+    fprintf(tex_dump, "\\end{*equation}\n" "\n\\end{document}\n");
 
     return NO_ERROR;
 }
@@ -83,19 +83,31 @@ static int End_TexDump(FILE* tex_dump)
 // Открывает латеховский файл.
 void Open_LaTEX_File()
 {
+    if (flag_isopentex) return;
     latex_ptr = fopen(_latex_fname, "w"); 
     Begin_TexDump(latex_ptr);
+    flag_isopentex = true;
+    flag_isclosetex = false;
 }
 
 
 // Закрывает латеховский файл.
 void Close_LaTEX_File()
 {
+    if (flag_isclosetex) return;
     End_TexDump(latex_ptr);
     fclose(latex_ptr);
-    char creat_cmd[BUFSIZ] = {};
+    char creat_cmd[BUFSIZE] = {};
+    if (BUFSIZE < strlen("xelatex -output-directory=latex -interaction=nonstopmode  > latex/message.txt") + strlen(_latex_fname))
+    {
+        printf("Overflow creat_cmd[BUFSIZE]\n");
+        abort();
+    }
     sprintf(creat_cmd, "xelatex -output-directory=latex -interaction=nonstopmode %s > latex/message.txt", _latex_fname);
     system(creat_cmd);
+
+    flag_isopentex = false;
+    flag_isclosetex = true;
 }
 
 
@@ -119,7 +131,7 @@ void Write_Data2LaTEX(NODE* head)
         #define CODEGEN(func)\
         if (head->data == OP_##func)\
         {\
-            char tmp_str[BUFSIZ] = {};\
+            char tmp_str[BUFSIZE] = {};\
             strcpy(tmp_str, #func);\
             fprintf(latex_ptr, "\\%s(", String2Lower(tmp_str));\
             Write_Data2LaTEX(head->right);\

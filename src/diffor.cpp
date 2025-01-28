@@ -132,20 +132,29 @@ static NODE* New_Step_Drvt(NODE* node)
                 }
                 
             }
-            else if (!Is_Num(left) && Is_Num(right)) // степенная функция
+            else 
             {
-                int degree = Calculate_Tree(right);
-                node->left = Create_Node(NUM_DATA, degree, NULL, NULL);
-                node->right = Create_Node(OP_DATA, OP_MUL, Create_Node(OP_DATA, OP_DEG, left, Create_Node(NUM_DATA, degree - 1, NULL, NULL)), New_Step_Drvt(Copy_Node(left)));
-                node->data = OP_MUL;
-                Destroy_Tree(right);
+                bool isltnum = true;
+                int ltval = Calculate_Tree(left, &isltnum);
+                bool isrtnum = true;
+                int rtval = Calculate_Tree(left, &isrtnum);
+
+                if (!isltnum && isrtnum)// степенная функция
+                {
+                    int degree = rtval;
+                    node->left = Create_Node(NUM_DATA, degree, NULL, NULL);
+                    node->right = Create_Node(OP_DATA, OP_MUL, Create_Node(OP_DATA, OP_DEG, left, Create_Node(NUM_DATA, degree - 1, NULL, NULL)), New_Step_Drvt(Copy_Node(left)));
+                    node->data = OP_MUL;
+                    Destroy_Tree(right);
+                }
+                else if (!isltnum && !isrtnum)  // функция показательная с переменным основанием.
+                {
+                    node->left = Create_Node(node->type, node->data, left, right);
+                    node->right = New_Step_Drvt(Create_Node(OP_DATA, OP_MUL, Create_Node(OP_DATA, OP_LN, Create_Node(NUM_DATA, 0, NULL, NULL), Copy_Node(left)), Copy_Node(node->right)));
+                    node->data = OP_MUL;
+                }
             }
-            else if (!Is_Num(left) && !Is_Num(right)) // функция показательная с переменным основанием.
-            {
-                node->left = Create_Node(node->type, node->data, left, right);
-                node->right = New_Step_Drvt(Create_Node(OP_DATA, OP_MUL, Create_Node(OP_DATA, OP_LN, Create_Node(NUM_DATA, 0, NULL, NULL), Copy_Node(left)), Copy_Node(node->right)));
-                node->data = OP_MUL;
-            }
+
         }
     }
 

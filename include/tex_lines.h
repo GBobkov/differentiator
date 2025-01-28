@@ -16,7 +16,7 @@ struct TEX_OUTPUT
 {
     TEX_LINE** lines;
     int size;
-    int capacity;
+    unsigned capacity;
 };
 
 
@@ -25,7 +25,7 @@ TEX_LINE* Create_Tex_Line(const char* phrase_beg, NODE* head, const char* phrase
 void Destroy_Tex_Line(TEX_LINE* line);
 
 // Классичестий конструктор.
-TEX_OUTPUT* Create_Tex_Output(int capacity);
+TEX_OUTPUT* Create_Tex_Output(unsigned capacity);
 
 // Классический дестройер.
 void Destroy_Tex_Output(TEX_OUTPUT* latex);

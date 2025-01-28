@@ -1,5 +1,9 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
+
+#define BUFSIZE 512
+
+
 // Константы типа переменной.
 enum DATA_TYPE_CNST
 {
@@ -24,24 +28,28 @@ struct NODE
 // операции
 enum OPERATIONS
 {
-    OP_LN  =  1,
-    OP_LOG =  2,
-    OP_COS =  3,
-    OP_SIN =  4,
-    OP_TAN =  5,
-    OP_COT =  6,
-    OP_SINH  =  7, 
-    OP_COSH  =  8, 
-    OP_TANH  =  9,
-    OP_COTH =  10,
-    OP_SUM =  11,
-    OP_SUB =  12,
-    OP_MUL =  13,
-    OP_DIV =  14,
-    OP_DEG =  15
+    OP_LN  =  2,
+    OP_LOG =  4,
+    OP_COS =  6,
+    OP_SIN =  8,
+    OP_TAN =  10,
+    OP_COT =  12,
+    OP_SINH  =  14, 
+    OP_COSH  =  16, 
+    OP_TANH  =  18,
+    OP_COTH =  20,
+    OP_SUM =  1,
+    OP_SUB =  3,
+    OP_MUL =  5,
+    OP_DIV =  7,
+    OP_DEG =  9
 
 };
 
+enum BIT_VALUES
+{
+    BIT_ISCALC_FUNC = 1
+};
 
 enum ERROR_FLAGS
 {

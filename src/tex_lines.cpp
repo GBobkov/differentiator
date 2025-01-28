@@ -22,7 +22,7 @@ void Destroy_Tex_Line(TEX_LINE* line)
 }
 
 
-TEX_OUTPUT* Create_Tex_Output(int capacity)
+TEX_OUTPUT* Create_Tex_Output(unsigned capacity)
 {
     TEX_LINE** lines = (TEX_LINE **) calloc(capacity, sizeof(TEX_LINE*));
     TEX_OUTPUT* latex =  (TEX_OUTPUT *) calloc(1, sizeof(TEX_OUTPUT));
@@ -43,7 +43,7 @@ void Add_New_Line(TEX_OUTPUT* latex, TEX_LINE* line)
 {
     assert(latex);
     
-    if (latex->size >= latex->capacity)
+    if (latex->size >= (int) latex->capacity)
     {
         printf("WARNING! Overload capacity LATEX_OUTPUT.\n");
         return;

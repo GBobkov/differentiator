@@ -23,6 +23,7 @@ bool Is_Num(NODE* head)
 static int pow(int num, int degree)
 {
     if (degree == 1) return num;
+    if (degree % 2 == 0) return pow(num * num, degree / 2);
     return num * pow(num, degree - 1);
 
 }
@@ -31,24 +32,48 @@ static int pow(int num, int degree)
 // Вычислить значение операции.
 static int result_value(int operation, int ld, int rd)
 {
-    if (operation == OP_MUL) return ld * rd;
-    if (operation == OP_DIV) {if (rd == 0) {printf("ALARM DIV BY ZERO!\n");} return ld / rd;}
-    if (operation == OP_SUM) return ld + rd;
-    if (operation == OP_SUB) return ld - rd;
-    if (operation == OP_DEG) return pow(ld, rd);
+    switch (operation)
+    {
+    case OP_MUL:
+        return ld * rd;
+        break;
+    case OP_DIV:
+        if (rd == 0) 
+            printf("ALARM DIV BY ZERO!\n");
+        return ld / rd;
+        break;
+    case OP_SUM:
+        return ld + rd;
+        break;
+    case OP_SUB:
+        return ld - rd;
+        break;
+    case OP_DEG:
+        return pow(ld, rd);
+        break;
 
-    printf("ALARM! DANGEROUS SITUATION! Idk what the operation=%d\n", operation);
+    default:
+        printf("ALARM! DANGEROUS SITUATION! Idk what the operation=%d\n", operation);
+        break;
+    } 
+    
     return 0;
 }
 
 
 //функция вычисляет численное значение дерева.
-int Calculate_Tree(NODE* node)
+int Calculate_Tree(NODE* node, bool* isnum)
 {
     if (node->type == NUM_DATA) return node->data;
+    if (!(node->data & BIT_ISCALC_FUNC) || node->type == VAR_DATA) 
+    {
+        *isnum = false;
+        return 1;
+    }
+    
     if (node->left->type == NUM_DATA && node->right->type == NUM_DATA) return result_value(node->data, node->left->data, node->right->data);
     
-    return result_value(node->data, Calculate_Tree(node->left), Calculate_Tree(node->right));
+    return result_value(node->data, Calculate_Tree(node->left, isnum), Calculate_Tree(node->right, isnum));
 } 
 
 
@@ -214,17 +239,21 @@ static bool Nums_optim(NODE* head)
 {
     if (!head || head->type == NUM_DATA || head->type == VAR_DATA) return false;
     if (!Is_Num(head)) return false;
-    if (head->data != OP_DIV && head->data != OP_SUM && head->data != OP_SUB && head->data != OP_MUL && head->data != OP_DEG) return false;
-    
-    head->data = Calculate_Tree(head);
-    head->type = NUM_DATA;
+    if (head->data & 1) return false;
+    bool isnum = true;
+    int value = Calculate_Tree(head, &isnum);
+    if (isnum)
+    {
+        head->data = value;
+        head->type = NUM_DATA;
 
-    Destroy_Tree(head->left);
-    Destroy_Tree(head->right);
-    head->left = NULL;
-    head->right = NULL; 
-    return true;
-            
+        Destroy_Tree(head->left);
+        Destroy_Tree(head->right);
+        head->left = NULL;
+        head->right = NULL;
+    }
+
+    return isnum;        
 }
   
 
@@ -276,7 +305,6 @@ void Optimizator(NODE* head)
     {
         changes = 0;
         Optimization_Step(head, &changes);
-        //printf("newstep %s:%d(%s)\n", __FILE__, __LINE__, __FUNCTION__); Tree_Dump("smotrim.dot", head); scanf("%c");
     } while (changes > 0);
     
 }
