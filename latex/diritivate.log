@@ -1,4 +1,4 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2025.1.18)  28 JAN 2025 18:50
+This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2025.1.18)  28 JAN 2025 18:52
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -335,8 +335,8 @@ or  <return>  to continue without it.
 ! Missing $ inserted.
 <inserted text> 
                 $
-l.15 (\sin
-          (x+2)^x)^{'} = \sin(x+2)^x \cdot (\frac{\cos(x+2)}{\sin(x+2)} \cdo...
+l.15 (x^
+        {(x^x)})^{'} = x^{(x^x)} \cdot (\frac{1}{x} \cdot x^x+\ln(x) \cdot x...
 I've inserted a begin-math/end-math symbol since I think
 you left one out. Proceed, with fingers crossed.
 
